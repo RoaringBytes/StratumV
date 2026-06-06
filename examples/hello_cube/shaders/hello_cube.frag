@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 RoaringBytes
+#version 460
+
+layout(location = 0) in vec3 vColor;
+layout(location = 0) out vec4 outColor;
+
+void main() {
+    outColor = vec4(vColor, 1.0);
+}

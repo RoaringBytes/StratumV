@@ -1,0 +1,1140 @@
+{
+  "generated": "2026-06-06T12:42:42.175693+00:00",
+  "commit": "a0debba",
+  "branch": "oss-prep-phase1",
+  "stats": {
+    "total_files": 168,
+    "headers": 94,
+    "sources": 74,
+    "modules": 94,
+    "header_only_modules": 20
+  },
+  "layers": {
+    "1": {
+      "name": "Platform",
+      "description": "Window, types, quality presets — foundational platform abstractions",
+      "module_count": 3,
+      "modules": [
+        "QualityPresets",
+        "Types",
+        "Window"
+      ]
+    },
+    "2": {
+      "name": "Vulkan Abstraction",
+      "description": "Vulkan wrappers — device, swapchain, buffers, textures, pipelines, RT, DLSS",
+      "module_count": 20,
+      "modules": [
+        "CC5Sidecar",
+        "DlssWrapper",
+        "FbxLoader",
+        "GltfLoader",
+        "MeshImportData",
+        "PipelineCache",
+        "PipelineRegistry",
+        "VkAccelStructure",
+        "VkBuffer",
+        "VkClusterAS",
+        "VkComputePipeline",
+        "VkContext",
+        "VkDescriptors",
+        "VkMesh",
+        "VkNtcTexture",
+        "VkPipeline",
+        "VkRTPipeline",
+        "VkShader",
+        "VkSwapchain",
+        "VkTexture"
+      ]
+    },
+    "3": {
+      "name": "Render Graph",
+      "description": "Data-driven render graph, built-in passes, post-process, UI layer",
+      "module_count": 12,
+      "modules": [
+        "AdminPanel",
+        "AdminPanelDecorations",
+        "BuiltinPasses",
+        "GpuProfiler",
+        "GraphResources",
+        "ImGuiLayer",
+        "PostProcess",
+        "RenderGraph",
+        "RenderPass",
+        "ShadowPass",
+        "SkinnedMeshPass",
+        "UiStyle"
+      ]
+    },
+    "4": {
+      "name": "Engine Services",
+      "description": "Input, camera, audio, ECS, events, config, world state, persistence",
+      "module_count": 49,
+      "modules": [
+        "AnimationStateMachine",
+        "AnimationSystem",
+        "AnimationTypes",
+        "AnimatorComponent",
+        "AssetBrowser",
+        "AssetManifest",
+        "AssetPersistence",
+        "AssetUploadClient",
+        "Audio",
+        "AudioTypes",
+        "BlendTree",
+        "Camera",
+        "CameraComponent",
+        "Components",
+        "Config",
+        "EditTransaction",
+        "EditorBridge",
+        "EngineLog",
+        "Events",
+        "FollowCamera",
+        "FreeFlyCamera",
+        "FrustumCuller",
+        "IAnimationController",
+        "ICameraMode",
+        "INetworkContext",
+        "IPhysicsContext",
+        "Input",
+        "InputAction",
+        "InputBindings",
+        "JoltPhysicsContext",
+        "LightComponent",
+        "MaterialComponent",
+        "MorphTargetTypes",
+        "MsQuicTransport",
+        "NetTransform",
+        "OrbitCamera",
+        "ParentLink",
+        "PermissionScope",
+        "PhysicsTypes",
+        "ReplicationProtocol",
+        "ReplicationRegistry",
+        "SceneStatePersistence",
+        "SceneStateVersioning",
+        "Sha256",
+        "ThumbnailCache",
+        "UndoLog",
+        "WorldPersistence",
+        "WorldStateIO",
+        "WorldStateTypes"
+      ]
+    },
+    "5": {
+      "name": "Dev / Debug",
+      "description": "TCP debug server",
+      "module_count": 3,
+      "modules": [
+        "DevServer",
+        "MaterialPipeline",
+        "SceneLoader"
+      ]
+    },
+    "6": {
+      "name": "Game Interface",
+      "description": "DLL plugin system, system registry, base context — the DLL boundary",
+      "module_count": 7,
+      "modules": [
+        "AssetWatcher",
+        "BaseSystemContext",
+        "DLLLoader",
+        "EngineBase",
+        "EngineSystem",
+        "IModularSystem",
+        "SystemRegistry"
+      ]
+    }
+  },
+  "base_system_context": {
+    "total_fields": 158,
+    "sections": [
+      {
+        "name": "Core Vulkan & Memory",
+        "fields": [
+          {
+            "type": "VkDevice",
+            "name": "device",
+            "default": "VK_NULL_HANDLE"
+          },
+          {
+            "type": "VmaAllocator",
+            "name": "allocator",
+            "default": "VK_NULL_HANDLE"
+          }
+        ]
+      },
+      {
+        "name": "ECS & Events",
+        "fields": [
+          {
+            "type": "entt::registry*",
+            "name": "ecs",
+            "default": "nullptr"
+          },
+          {
+            "type": "EventBus*",
+            "name": "events",
+            "default": "nullptr"
+          }
+        ]
+      },
+      {
+        "name": "Window",
+        "fields": [
+          {
+            "type": "uint32_t",
+            "name": "windowWidth",
+            "default": "0"
+          },
+          {
+            "type": "uint32_t",
+            "name": "windowHeight",
+            "default": "0"
+          },
+          {
+            "type": "bool",
+            "name": "isBorderlessFullscreen",
+            "default": "false"
+          }
+        ]
+      },
+      {
+        "name": "Shared Flags",
+        "fields": [
+          {
+            "type": "bool*",
+            "name": "wireframeEnabled",
+            "default": "nullptr"
+          },
+          {
+            "type": "bool*",
+            "name": "gamePaused",
+            "default": "nullptr"
+          },
+          {
+            "type": "bool*",
+            "name": "requestShutdown",
+            "default": "nullptr"
+          },
+          {
+            "type": "bool*",
+            "name": "adminOpen",
+            "default": "nullptr"
+          }
+        ]
+      },
+      {
+        "name": "Logging",
+        "fields": [
+          {
+            "type": "EngineLog*",
+            "name": "engineLog",
+            "default": "nullptr"
+          }
+        ]
+      },
+      {
+        "name": "Physics",
+        "fields": [
+          {
+            "type": "IPhysicsContext*",
+            "name": "physics",
+            "default": "nullptr"
+          }
+        ]
+      },
+      {
+        "name": "rendering (RenderingContext) — Formats + resolution",
+        "fields": [
+          {
+            "type": "VkFormat",
+            "name": "hdrFormat",
+            "default": "VK_FORMAT_R16G16B16A16_SFLOAT"
+          },
+          {
+            "type": "VkFormat",
+            "name": "swapchainFormat",
+            "default": "VK_FORMAT_B8G8R8A8_SRGB"
+          },
+          {
+            "type": "uint32_t",
+            "name": "renderWidth",
+            "default": "0"
+          },
+          {
+            "type": "uint32_t",
+            "name": "renderHeight",
+            "default": "0"
+          },
+          {
+            "type": "uint32_t",
+            "name": "currentFrame",
+            "default": "0"
+          },
+          {
+            "type": "glm::mat4",
+            "name": "currentViewProj",
+            "default": "glm::mat4(1.0f)"
+          }
+        ]
+      },
+      {
+        "name": "rendering (RenderingContext) — Descriptor Sets & Layouts (frozen renderer)",
+        "fields": [
+          {
+            "type": "VkDescriptorSetLayout",
+            "name": "sceneDescLayout",
+            "default": "VK_NULL_HANDLE"
+          },
+          {
+            "type": "VkPipelineLayout",
+            "name": "scenePipeLayout",
+            "default": "VK_NULL_HANDLE"
+          }
+        ]
+      },
+      {
+        "name": "rendering (RenderingContext) — GPU Feature Availability",
+        "fields": [
+          {
+            "type": "bool",
+            "name": "rtAvailable",
+            "default": "false"
+          },
+          {
+            "type": "bool",
+            "name": "rqAvailable",
+            "default": "false"
+          },
+          {
+            "type": "bool",
+            "name": "dlssAvailable",
+            "default": "false"
+          }
+        ]
+      },
+      {
+        "name": "rendering (RenderingContext) — Quality / Render Settings (engine-owned)",
+        "fields": [
+          {
+            "type": "int*",
+            "name": "fpsCapTarget",
+            "default": "nullptr"
+          },
+          {
+            "type": "int*",
+            "name": "dlssQualityIndex",
+            "default": "nullptr"
+          },
+          {
+            "type": "bool*",
+            "name": "dlssEnabled",
+            "default": "nullptr"
+          },
+          {
+            "type": "int*",
+            "name": "qualityPresetIndex",
+            "default": "nullptr"
+          },
+          {
+            "type": "bool*",
+            "name": "restirEnabled",
+            "default": "nullptr"
+          },
+          {
+            "type": "bool*",
+            "name": "sharcEnabled",
+            "default": "nullptr"
+          },
+          {
+            "type": "bool*",
+            "name": "rtShadowManual",
+            "default": "nullptr"
+          },
+          {
+            "type": "uint32_t*",
+            "name": "shadowMapSize",
+            "default": "nullptr"
+          }
+        ]
+      },
+      {
+        "name": "rendering (RenderingContext) — PostProcess (engine-owned)",
+        "fields": [
+          {
+            "type": "PostProcessUBO*",
+            "name": "postProcMutable",
+            "default": "nullptr"
+          }
+        ]
+      },
+      {
+        "name": "rendering (RenderingContext) — Pipeline factory",
+        "fields": [
+          {
+            "type": "std::function<VkPipeline(const GraphicsPipelineDesc&)>",
+            "name": "getGraphicsPipeline",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "rendering (RenderingContext) — Render Graph: DLL Pass Registration",
+        "fields": [
+          {
+            "type": "std::function<bool(const char* name, uint32_t sortOrder, void(*recordFn)(VkCommandBuffer, const FrameData*, const void*), const void* userData)>",
+            "name": "registerRenderPass",
+            "default": null
+          },
+          {
+            "type": "std::function<void(const char* name)>",
+            "name": "unregisterRenderPass",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "rendering (RenderingContext) — HZB Occlusion Culling",
+        "fields": [
+          {
+            "type": "VkImageView",
+            "name": "hzbImageView",
+            "default": "VK_NULL_HANDLE"
+          },
+          {
+            "type": "VkSampler",
+            "name": "hzbSampler",
+            "default": "VK_NULL_HANDLE"
+          },
+          {
+            "type": "uint32_t",
+            "name": "hzbWidth",
+            "default": "0"
+          },
+          {
+            "type": "uint32_t",
+            "name": "hzbHeight",
+            "default": "0"
+          },
+          {
+            "type": "uint32_t",
+            "name": "hzbMipLevels",
+            "default": "0"
+          }
+        ]
+      },
+      {
+        "name": "rendering (RenderingContext) — Screenshot Capture",
+        "fields": [
+          {
+            "type": "std::function<bool(const char* path)>",
+            "name": "captureScreenshot",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "ui (UIContext) — ImGui (DLL boundary)",
+        "fields": [
+          {
+            "type": "void*",
+            "name": "imguiContext",
+            "default": "nullptr"
+          },
+          {
+            "type": "AdminDecorationRects*",
+            "name": "adminDecoRects",
+            "default": "nullptr"
+          },
+          {
+            "type": "char*",
+            "name": "uiStyleDecorationsJSON",
+            "default": "nullptr"
+          },
+          {
+            "type": "char*",
+            "name": "uiStyleBackgroundJSON",
+            "default": "nullptr"
+          },
+          {
+            "type": "uint32_t",
+            "name": "uiStyleVersion",
+            "default": "0"
+          }
+        ]
+      },
+      {
+        "name": "ui (UIContext) — UI Pipeline Layouts (engine UI system)",
+        "fields": [
+          {
+            "type": "VkPipelineLayout",
+            "name": "uiBgPipeLayout",
+            "default": "VK_NULL_HANDLE"
+          },
+          {
+            "type": "VkPipelineLayout",
+            "name": "uiGlassPipeLayout",
+            "default": "VK_NULL_HANDLE"
+          },
+          {
+            "type": "char*",
+            "name": "uiStyleGlassJSON",
+            "default": "nullptr"
+          },
+          {
+            "type": "VkPipelineLayout",
+            "name": "uiAtmoPipeLayout",
+            "default": "VK_NULL_HANDLE"
+          },
+          {
+            "type": "char*",
+            "name": "uiStyleAtmosphereJSON",
+            "default": "nullptr"
+          },
+          {
+            "type": "std::function<void(const char* section, const char* json)>",
+            "name": "saveStyleSection",
+            "default": null
+          },
+          {
+            "type": "bool*",
+            "name": "uiShadersEnabled",
+            "default": "nullptr"
+          }
+        ]
+      },
+      {
+        "name": "input (InputContext) — Keyboard + Mouse",
+        "fields": [
+          {
+            "type": "std::function<bool(int key)>",
+            "name": "isKeyPressed",
+            "default": null
+          },
+          {
+            "type": "std::function<bool(int key)>",
+            "name": "isKeyDown",
+            "default": null
+          },
+          {
+            "type": "std::function<glm::vec2()>",
+            "name": "getMousePos",
+            "default": null
+          },
+          {
+            "type": "std::function<bool(int)>",
+            "name": "isMouseDown",
+            "default": null
+          },
+          {
+            "type": "std::function<float()>",
+            "name": "getScrollDelta",
+            "default": null
+          },
+          {
+            "type": "std::function<bool()>",
+            "name": "isCursorLocked",
+            "default": null
+          },
+          {
+            "type": "std::function<void(bool)>",
+            "name": "setCursorLocked",
+            "default": null
+          },
+          {
+            "type": "std::function<void()>",
+            "name": "toggleFullscreen",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "input (InputContext) — Input Actions (rebindable, gamepad-aware)",
+        "fields": [
+          {
+            "type": "std::function<bool(int action)>",
+            "name": "isActionDown",
+            "default": null
+          },
+          {
+            "type": "std::function<bool(int action)>",
+            "name": "isActionPressed",
+            "default": null
+          },
+          {
+            "type": "std::function<float(int action)>",
+            "name": "getActionAxis",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "input (InputContext) — Gamepad",
+        "fields": [
+          {
+            "type": "std::function<bool()>",
+            "name": "isGamepadConnected",
+            "default": null
+          },
+          {
+            "type": "std::function<bool(int btn)>",
+            "name": "isGamepadButtonDown",
+            "default": null
+          },
+          {
+            "type": "std::function<bool(int btn)>",
+            "name": "isGamepadButtonPressed",
+            "default": null
+          },
+          {
+            "type": "std::function<float(int axis)>",
+            "name": "getGamepadAxis",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "buffers (BufferContext) — Buffer Management (VMA, DLL-safe)",
+        "fields": [
+          {
+            "type": "std::function<VkBuf(VkDeviceSize size, VkBufferUsageFlags usage, bool cpuVisible)>",
+            "name": "createBuffer",
+            "default": null
+          },
+          {
+            "type": "std::function<void(VkBuf&)>",
+            "name": "destroyBuffer",
+            "default": null
+          },
+          {
+            "type": "std::function<void*(const VkBuf&)>",
+            "name": "mapBuffer",
+            "default": null
+          },
+          {
+            "type": "std::function<void(const VkBuf&)>",
+            "name": "unmapBuffer",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "buffers (BufferContext) — Shader Compilation",
+        "fields": [
+          {
+            "type": "std::function<VkShaderModule(const char* path, VkShaderStageFlagBits stage)>",
+            "name": "createShaderModule",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "buffers (BufferContext) — VMA Image Wrappers",
+        "fields": [
+          {
+            "type": "std::function<VkResult(VkDevice, const VkImageCreateInfo*, VkImage*, VmaAllocation*)>",
+            "name": "createImage",
+            "default": null
+          },
+          {
+            "type": "std::function<void(VkImage, VmaAllocation)>",
+            "name": "destroyImage",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "vkfn (VulkanFnContext) — Drawing",
+        "fields": [
+          {
+            "type": "PFN_vkCmdBindPipeline",
+            "name": "fnCmdBindPipeline",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkCmdBindDescriptorSets",
+            "name": "fnCmdBindDescriptorSets",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkCmdBindVertexBuffers",
+            "name": "fnCmdBindVertexBuffers",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkCmdBindIndexBuffer",
+            "name": "fnCmdBindIndexBuffer",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkCmdDrawIndexed",
+            "name": "fnCmdDrawIndexed",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkCmdDraw",
+            "name": "fnCmdDraw",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkCmdDrawIndirect",
+            "name": "fnCmdDrawIndirect",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkCmdDrawIndexedIndirect",
+            "name": "fnCmdDrawIndexedIndirect",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkCmdPushConstants",
+            "name": "fnCmdPushConstants",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkCmdSetScissor",
+            "name": "fnCmdSetScissor",
+            "default": "nullptr"
+          }
+        ]
+      },
+      {
+        "name": "vkfn (VulkanFnContext) — Compute + resource management",
+        "fields": [
+          {
+            "type": "PFN_vkCmdDispatch",
+            "name": "fnCmdDispatch",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkCmdPipelineBarrier",
+            "name": "fnCmdPipelineBarrier",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkCmdFillBuffer",
+            "name": "fnCmdFillBuffer",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkCmdUpdateBuffer",
+            "name": "fnCmdUpdateBuffer",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkCreateDescriptorPool",
+            "name": "fnCreateDescriptorPool",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkDestroyDescriptorPool",
+            "name": "fnDestroyDescriptorPool",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkCreateDescriptorSetLayout",
+            "name": "fnCreateDescriptorSetLayout",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkDestroyDescriptorSetLayout",
+            "name": "fnDestroyDescriptorSetLayout",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkAllocateDescriptorSets",
+            "name": "fnAllocateDescriptorSets",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkUpdateDescriptorSets",
+            "name": "fnUpdateDescriptorSets",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkCreatePipelineLayout",
+            "name": "fnCreatePipelineLayout",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkDestroyPipelineLayout",
+            "name": "fnDestroyPipelineLayout",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkCreateComputePipelines",
+            "name": "fnCreateComputePipelines",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkDestroyPipeline",
+            "name": "fnDestroyPipeline",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkCreateImageView",
+            "name": "fnCreateImageView",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkDestroyImageView",
+            "name": "fnDestroyImageView",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkCreateSampler",
+            "name": "fnCreateSampler",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkDestroySampler",
+            "name": "fnDestroySampler",
+            "default": "nullptr"
+          },
+          {
+            "type": "PFN_vkDestroyShaderModule",
+            "name": "fnDestroyShaderModule",
+            "default": "nullptr"
+          }
+        ]
+      },
+      {
+        "name": "meshRegistry (MeshRegistryContext) — Registration hooks",
+        "fields": [
+          {
+            "type": "std::function<uint32_t(const MeshVertex* verts, uint32_t vertCount, const uint32_t* indices, uint32_t idxCount, float boundingSphereRadius)>",
+            "name": "registerMesh",
+            "default": null
+          },
+          {
+            "type": "std::function<uint32_t(const glm::vec4& albedo)>",
+            "name": "registerMaterial",
+            "default": null
+          },
+          {
+            "type": "std::function<const MeshSlot*(uint32_t meshId)>",
+            "name": "getMeshSlot",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "meshRegistry (MeshRegistryContext) — Engine-owned SSBOs + mega buffers",
+        "fields": [
+          {
+            "type": "VkBuffer",
+            "name": "meshSlotSSBO",
+            "default": "VK_NULL_HANDLE"
+          },
+          {
+            "type": "VkBuffer",
+            "name": "materialSSBO",
+            "default": "VK_NULL_HANDLE"
+          },
+          {
+            "type": "VkBuffer",
+            "name": "megaVBO",
+            "default": "VK_NULL_HANDLE"
+          },
+          {
+            "type": "VkBuffer",
+            "name": "megaIBO",
+            "default": "VK_NULL_HANDLE"
+          },
+          {
+            "type": "uint32_t",
+            "name": "registeredMeshCount",
+            "default": "0"
+          },
+          {
+            "type": "uint32_t",
+            "name": "registeredMaterialCount",
+            "default": "0"
+          }
+        ]
+      },
+      {
+        "name": "audio (AudioContext)",
+        "fields": [
+          {
+            "type": "std::function<uint32_t(const char* eventName)>",
+            "name": "postAudioEvent",
+            "default": null
+          },
+          {
+            "type": "std::function<uint32_t(const char* eventName, float x, float y, float z)>",
+            "name": "postAudioEventAt",
+            "default": null
+          },
+          {
+            "type": "std::function<void(uint32_t handle)>",
+            "name": "stopAudioEvent",
+            "default": null
+          },
+          {
+            "type": "std::function<void(const char* tag)>",
+            "name": "stopAudioByTag",
+            "default": null
+          },
+          {
+            "type": "std::function<void(const char* name, float value)>",
+            "name": "setAudioParam",
+            "default": null
+          },
+          {
+            "type": "std::function<void(const char* tag, bool active)>",
+            "name": "setAudioEnvironment",
+            "default": null
+          },
+          {
+            "type": "std::function<void(int bus, float vol)>",
+            "name": "setAudioVolume",
+            "default": null
+          },
+          {
+            "type": "std::function<float(int bus)>",
+            "name": "getAudioVolume",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "animation (AnimationContext) — Animation runtime + bone palette",
+        "fields": [
+          {
+            "type": "AnimationSystem*",
+            "name": "animationSystem",
+            "default": "nullptr"
+          },
+          {
+            "type": "VkBuffer",
+            "name": "bonePaletteSSBO",
+            "default": "VK_NULL_HANDLE"
+          },
+          {
+            "type": "VkDescriptorSetLayout",
+            "name": "bonePaletteLayout",
+            "default": "VK_NULL_HANDLE"
+          },
+          {
+            "type": "VkDescriptorSet",
+            "name": "bonePaletteDescSet",
+            "default": "VK_NULL_HANDLE"
+          },
+          {
+            "type": "std::function<void()>",
+            "name": "resetBonePalette",
+            "default": null
+          },
+          {
+            "type": "std::function<uint32_t(const glm::mat4* matrices, uint32_t count)>",
+            "name": "uploadBones",
+            "default": null
+          },
+          {
+            "type": "std::function<void()>",
+            "name": "flushBonePalette",
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "animation (AnimationContext) — Skinned Mesh Rendering",
+        "fields": [
+          {
+            "type": "SkinnedMeshPass*",
+            "name": "skinnedMeshPass",
+            "default": "nullptr"
+          },
+          {
+            "type": "VkPipelineLayout",
+            "name": "skinnedPipeLayout",
+            "default": "VK_NULL_HANDLE"
+          },
+          {
+            "type": "VkPipelineLayout",
+            "name": "skinnedShadowPipeLayout",
+            "default": "VK_NULL_HANDLE"
+          }
+        ]
+      },
+      {
+        "name": "world (WorldContext)",
+        "fields": [
+          {
+            "type": "WorldBounds*",
+            "name": "worldBounds",
+            "default": "nullptr"
+          },
+          {
+            "type": "AssetManifest*",
+            "name": "assetManifest",
+            "default": "nullptr"
+          }
+        ]
+      },
+      {
+        "name": "perf (PerformanceContext) → budget (PerformanceBudget) — Frame budget",
+        "fields": [
+          {
+            "type": "float",
+            "name": "targetFps",
+            "default": "60.0f"
+          },
+          {
+            "type": "float",
+            "name": "maxFrameMs",
+            "default": "16.67f"
+          }
+        ]
+      },
+      {
+        "name": "perf (PerformanceContext) → budget (PerformanceBudget) — Draw budget (warnings only, not enforced)",
+        "fields": [
+          {
+            "type": "uint32_t",
+            "name": "maxDrawCalls",
+            "default": "10000"
+          },
+          {
+            "type": "uint32_t",
+            "name": "maxTriangles",
+            "default": "5'000'000"
+          }
+        ]
+      },
+      {
+        "name": "perf (PerformanceContext) → budget (PerformanceBudget) — GPU memory budget (MB, nominal ceiling)",
+        "fields": [
+          {
+            "type": "uint32_t",
+            "name": "maxGpuMemMB",
+            "default": "8192"
+          }
+        ]
+      },
+      {
+        "name": "perf (PerformanceContext) — Frame timing (engine populates per frame)",
+        "fields": [
+          {
+            "type": "float",
+            "name": "frameTimeMs",
+            "default": "0.0f"
+          },
+          {
+            "type": "float",
+            "name": "cpuFrameTimeMs",
+            "default": "0.0f"
+          },
+          {
+            "type": "float",
+            "name": "gpuFrameTimeMs",
+            "default": "0.0f"
+          },
+          {
+            "type": "float",
+            "name": "avgFps",
+            "default": "0.0f"
+          }
+        ]
+      },
+      {
+        "name": "perf (PerformanceContext) — Draw counters (engine populates, game records)",
+        "fields": [
+          {
+            "type": "uint32_t",
+            "name": "drawCallCount",
+            "default": "0"
+          },
+          {
+            "type": "uint32_t",
+            "name": "triangleCount",
+            "default": "0"
+          }
+        ]
+      },
+      {
+        "name": "perf (PerformanceContext) — GPU memory (VMA stats, engine populates)",
+        "fields": [
+          {
+            "type": "float",
+            "name": "vramUsedMB",
+            "default": "0.0f"
+          },
+          {
+            "type": "float",
+            "name": "vramBudgetMB",
+            "default": "0.0f"
+          }
+        ]
+      },
+      {
+        "name": "perf (PerformanceContext) → network (NetworkStats)",
+        "fields": [
+          {
+            "type": "uint64_t",
+            "name": "bytesPerSec",
+            "default": "0"
+          },
+          {
+            "type": "uint32_t",
+            "name": "packetsPerSec",
+            "default": "0"
+          },
+          {
+            "type": "uint32_t",
+            "name": "replicatedEntityCount",
+            "default": "0"
+          },
+          {
+            "type": "float",
+            "name": "tickMs",
+            "default": "0.0f"
+          },
+          {
+            "type": "float",
+            "name": "ackLatencyMs",
+            "default": "0.0f"
+          },
+          {
+            "type": "float",
+            "name": "droppedDatagramPct",
+            "default": "0.0f"
+          }
+        ]
+      },
+      {
+        "name": "network (NetworkContext)",
+        "fields": [
+          {
+            "type": "INetworkContext*",
+            "name": "context",
+            "default": "nullptr"
+          },
+          {
+            "type": "net::Transport*",
+            "name": "transport",
+            "default": "nullptr"
+          },
+          {
+            "type": "PermissionScope",
+            "name": "scope",
+            "default": "PermissionScope::Spectator"
+          },
+          {
+            "type": "uint32_t",
+            "name": "clientId",
+            "default": "0"
+          },
+          {
+            "type": "uint32_t",
+            "name": "avatarEntityId",
+            "default": "0"
+          }
+        ]
+      }
+    ]
+  }
+}

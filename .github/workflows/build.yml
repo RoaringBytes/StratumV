@@ -1,0 +1,136 @@
+name: Build StratumV
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Windows (VS 2022, Release)
+    runs-on: windows-2022
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache FetchContent dependencies
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: fetchcontent-${{ hashFiles('CMakeLists.txt') }}
+          restore-keys: |
+            fetchcontent-
+
+      - name: Configure CMake
+        run: >
+          cmake -B build
+          -G "Visual Studio 17 2022" -A x64
+          -DSTRATUMV_ENABLE_DLSS=OFF
+          -DSTRATUMV_ENABLE_SHARC=OFF
+          -DSTRATUMV_ENABLE_NTC=OFF
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Verify library output
+        shell: pwsh
+        run: |
+          if (!(Test-Path "build/Release/stratumv.lib")) {
+            Write-Error "stratumv.lib not found"
+            exit 1
+          }
+          $size = (Get-Item "build/Release/stratumv.lib").Length / 1MB
+          Write-Host "stratumv.lib size: $([math]::Round($size, 1)) MB"
+
+      - name: Verify engine_ref tooling
+        run: python tools/engine_ref.py
+
+  # ── Linux core-only build (stratumv_core + stratumv_server) ──
+  # Builds the Layer 4 networking + replication carve-out on Ubuntu
+  # against a prebuilt MsQuic 2.5.6 Linux OpenSSL3 tarball. The resulting
+  # stratumv_server.exe (Linux ELF) is the same binary a Proxmox VM
+  # deployment would run. No Vulkan, glslang, glm, ozz, or ImGui on
+  # this path — if any of those creep in the configure fails because
+  # their FetchContent blocks are gated on NOT STRATUMV_CORE_ONLY.
+  linux-core:
+    name: Linux (Ubuntu 22.04, stratumv_core carve-out)
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            ninja-build \
+            pkg-config \
+            libssl-dev
+
+      - name: Download MsQuic 2.5.6 Linux OpenSSL3 prebuilt
+        # The GitHub release artifact name has varied across MsQuic
+        # versions. For 2.5.6 we try the OpenSSL3 variant first; the
+        # CI job is allowed to fail if the asset is absent so the
+        # Windows build still stands alone until the Linux drop is
+        # available upstream.
+        continue-on-error: true
+        run: |
+          set -euxo pipefail
+          mkdir -p ${{ github.workspace }}/msquic
+          # Prefer the OpenSSL3 asset; fall back to the openssl1 name.
+          URL_OSSL3="https://github.com/microsoft/msquic/releases/download/v2.5.6/msquic_linux_x64_Release_openssl3.tar.gz"
+          URL_OSSL1="https://github.com/microsoft/msquic/releases/download/v2.5.6/msquic_linux_x64_Release_openssl.tar.gz"
+          if curl -fsSL "${URL_OSSL3}" -o msquic.tar.gz; then
+            echo "Downloaded OpenSSL3 prebuilt"
+          else
+            curl -fsSL "${URL_OSSL1}" -o msquic.tar.gz
+            echo "Downloaded OpenSSL1 prebuilt"
+          fi
+          tar -xf msquic.tar.gz -C ${{ github.workspace }}/msquic --strip-components=1
+          ls -la ${{ github.workspace }}/msquic
+          find ${{ github.workspace }}/msquic -name 'libmsquic.so*' -o -name 'msquic.h'
+
+      - name: Configure CMake (STRATUMV_CORE_ONLY=ON)
+        # continue-on-error follows the download step so a temporary
+        # MsQuic artifact outage does not red-X the whole matrix.
+        continue-on-error: true
+        run: >
+          cmake -B build
+          -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DSTRATUMV_CORE_ONLY=ON
+          -DSTRATUMV_BUILD_TESTS=ON
+          -DSTRATUMV_LINUX_MSQUIC_ROOT=${{ github.workspace }}/msquic
+
+      - name: Build stratumv_core + stratumv_server + sv_tests
+        continue-on-error: true
+        run: cmake --build build --parallel
+
+      - name: Verify stratumv_core.a and stratumv_server outputs
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -eu
+          if [ ! -f build/libstratumv_core.a ]; then
+            echo "libstratumv_core.a not found" >&2
+            exit 1
+          fi
+          if [ ! -f build/src/stratumv_server/stratumv_server ]; then
+            echo "stratumv_server exe not found" >&2
+            exit 1
+          fi
+          ls -la build/libstratumv_core.a build/src/stratumv_server/stratumv_server
+
+      - name: Run core ctest subset
+        continue-on-error: true
+        working-directory: build
+        env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/msquic/bin:${{ github.workspace }}/msquic/lib
+        run: ctest --output-on-failure

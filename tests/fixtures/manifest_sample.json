@@ -1,0 +1,48 @@
+{
+    "version": 1,
+    "name": "test_core",
+    "assets": [
+        {
+            "name": "player_mesh",
+            "path": "characters/player.glb",
+            "kind": "mesh",
+            "preload": true
+        },
+        {
+            "name": "enemy_mesh",
+            "path": "characters/enemy.glb",
+            "kind": "mesh",
+            "preload": false
+        },
+        {
+            "name": "grass_albedo",
+            "path": "textures/grass_albedo.png",
+            "kind": "texture",
+            "preload": true
+        },
+        {
+            "name": "wind_loop",
+            "path": "audio/wind_loop.ogg",
+            "kind": "audio",
+            "preload": true,
+            "tags": {
+                "bus": "ambience",
+                "volume": 0.6
+            }
+        },
+        {
+            "name": "ui_font",
+            "path": "fonts/Inter.ttf",
+            "preload": true,
+            "tags": {
+                "weight": "regular"
+            }
+        },
+        {
+            "name": "level_01",
+            "path": "scenes/level_01.scene.json",
+            "kind": "scene",
+            "preload": false
+        }
+    ]
+}

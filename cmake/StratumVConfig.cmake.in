@@ -1,0 +1,18 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# Required system dependencies
+find_dependency(Vulkan)
+
+# Create the imported target
+if(NOT TARGET StratumV::stratumv)
+    add_library(StratumV::stratumv STATIC IMPORTED)
+    set_target_properties(StratumV::stratumv PROPERTIES
+        IMPORTED_LOCATION "${PACKAGE_PREFIX_DIR}/@CMAKE_INSTALL_LIBDIR@/stratumv.lib"
+        INTERFACE_INCLUDE_DIRECTORIES "${PACKAGE_PREFIX_DIR}/@CMAKE_INSTALL_INCLUDEDIR@"
+        INTERFACE_COMPILE_DEFINITIONS "VK_USE_PLATFORM_WIN32_KHR;VK_NO_PROTOTYPES;IMGUI_IMPL_VULKAN_USE_VOLK"
+    )
+endif()
+
+check_required_components(StratumV)

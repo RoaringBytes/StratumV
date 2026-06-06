@@ -1,0 +1,181 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "StratumV Scene Format",
+  "description": "Scene descriptor exported from Blender for StratumV engine consumption. All coordinates are Y-up right-handed (engine space).",
+  "type": "object",
+  "required": ["version", "coordinate_system", "objects", "metadata"],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1,
+      "description": "Schema version. Increment on breaking changes."
+    },
+    "generator": {
+      "type": "string",
+      "description": "Tool that produced this file."
+    },
+    "coordinate_system": {
+      "type": "string",
+      "const": "y_up_right_handed",
+      "description": "All transforms are in Y-up right-handed space."
+    },
+    "objects": {
+      "type": "array",
+      "description": "Mesh objects with transforms, materials, and bounds.",
+      "items": { "$ref": "#/definitions/SceneObject" }
+    },
+    "markers": {
+      "type": "array",
+      "description": "Empty objects used as spawn points, triggers, or custom markers.",
+      "items": { "$ref": "#/definitions/Marker" },
+      "default": []
+    },
+    "metadata": { "$ref": "#/definitions/Metadata" }
+  },
+  "definitions": {
+    "Vec3": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "Vec4": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "Quaternion": {
+      "type": "array",
+      "description": "[x, y, z, w] unit quaternion.",
+      "items": { "type": "number" },
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "Transform": {
+      "type": "object",
+      "required": ["position", "rotation", "scale"],
+      "properties": {
+        "position": { "$ref": "#/definitions/Vec3" },
+        "rotation": {
+          "$ref": "#/definitions/Quaternion",
+          "description": "[x, y, z, w] in engine space."
+        },
+        "scale": { "$ref": "#/definitions/Vec3" }
+      }
+    },
+    "AABB": {
+      "type": "object",
+      "required": ["min", "max"],
+      "properties": {
+        "min": { "$ref": "#/definitions/Vec3" },
+        "max": { "$ref": "#/definitions/Vec3" }
+      }
+    },
+    "MaterialTextures": {
+      "type": "object",
+      "description": "Relative paths to texture files. Keys match TextureType enum in VkMesh.h.",
+      "properties": {
+        "baseColor": { "type": "string" },
+        "normal": { "type": "string" },
+        "metallicRoughness": { "type": "string" },
+        "emissive": { "type": "string" },
+        "occlusion": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "Material": {
+      "type": "object",
+      "properties": {
+        "baseColor": {
+          "$ref": "#/definitions/Vec4",
+          "description": "RGBA base color factor. Default [1,1,1,1].",
+          "default": [1, 1, 1, 1]
+        },
+        "metallic": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.0
+        },
+        "roughness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 1.0
+        },
+        "textures": { "$ref": "#/definitions/MaterialTextures" }
+      }
+    },
+    "SceneObject": {
+      "type": "object",
+      "required": ["name", "mesh", "transform"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique object name from Blender."
+        },
+        "mesh": {
+          "type": "string",
+          "description": "Relative path to .glb file."
+        },
+        "transform": { "$ref": "#/definitions/Transform" },
+        "material": { "$ref": "#/definitions/Material" },
+        "bounds": {
+          "$ref": "#/definitions/AABB",
+          "description": "World-space axis-aligned bounding box in engine coordinates."
+        },
+        "parent": {
+          "type": ["string", "null"],
+          "description": "Name of parent object, or null for root.",
+          "default": null
+        },
+        "children": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Names of child objects.",
+          "default": []
+        },
+        "custom_properties": {
+          "type": "object",
+          "description": "Blender custom properties forwarded as-is.",
+          "additionalProperties": true
+        }
+      }
+    },
+    "Marker": {
+      "type": "object",
+      "required": ["name", "type", "transform"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique marker name from Blender."
+        },
+        "type": {
+          "type": "string",
+          "description": "Marker type: spawn_point, trigger, audio_zone, nav_region, light_probe, or custom string.",
+          "examples": ["spawn_point", "trigger", "audio_zone", "nav_region", "light_probe"]
+        },
+        "transform": { "$ref": "#/definitions/Transform" },
+        "properties": {
+          "type": "object",
+          "description": "Marker-specific key-value properties from Blender custom properties.",
+          "additionalProperties": true
+        }
+      }
+    },
+    "Metadata": {
+      "type": "object",
+      "required": ["exported_at", "blender_version", "scene_name"],
+      "properties": {
+        "exported_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "blender_version": { "type": "string" },
+        "scene_name": { "type": "string" },
+        "addon_version": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+StratumV
+Copyright 2026 RoaringBytes
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this software except in compliance with the License. A copy of the
+License is provided in the LICENSE file, and may also be obtained at
+http://www.apache.org/licenses/LICENSE-2.0
+
+This product includes open-source software developed by third parties.
+The complete list of bundled and fetched dependencies, together with their
+respective copyright notices and licenses, is provided in the file
+THIRD_PARTY_NOTICES.md.
+
+Optional NVIDIA components (DLSS, SHARC, RTXNTC) are proprietary, are NOT
+distributed with StratumV, and are disabled by default. Enabling them is
+subject to NVIDIA's own license terms and is not covered by the Apache
+License above.

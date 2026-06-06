@@ -1,0 +1,66 @@
+{
+    "MyCharacter": {
+        "Object": {
+            "MyCharacter_001": {
+                "Meshes": {
+                    "Body_Mesh": {
+                        "Materials": {
+                            "Std_Skin_Head": {
+                                "Node Type": "",
+                                "Two Side": false,
+                                "Textures": {
+                                    "Base Color": {
+                                        "Texture Path": "textures/Std_Skin_Head_Diffuse.png"
+                                    },
+                                    "Normal": {
+                                        "Texture Path": "textures/Std_Skin_Head_Normal.png"
+                                    }
+                                }
+                            },
+                            "Std_Skin_Body": {
+                                "Node Type": "",
+                                "Two Side": false,
+                                "Textures": {
+                                    "Base Color": {
+                                        "Texture Path": "textures/Body_Diffuse.png"
+                                    }
+                                }
+                            },
+                            "Hair_Transparent": {
+                                "Node Type": "Hair",
+                                "Two Side": true,
+                                "Textures": {
+                                    "Base Color": {
+                                        "Texture Path": "textures/Hair_Color.png"
+                                    },
+                                    "Opacity": {
+                                        "Texture Path": "textures/Hair_Opacity.png"
+                                    }
+                                },
+                                "Custom Shader": {
+                                    "Shader Name": "RLHair",
+                                    "Variable": {
+                                        "RootColor": [85, 42, 20],
+                                        "TipColor":  [212, 170, 102]
+                                    }
+                                }
+                            },
+                            "Eyelash_Mat": {
+                                "Node Type": "Eyelash",
+                                "Two Side": false,
+                                "Textures": {
+                                    "Base Color": {
+                                        "Texture Path": "textures/Eyelash.png"
+                                    },
+                                    "Opacity": {
+                                        "Texture Path": "textures/Eyelash_Opacity.png"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
