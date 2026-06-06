@@ -1,0 +1,86 @@
+# Build output
+build/
+build_jolt/
+build_debug/
+out/
+bin/
+*.exe
+*.dll
+*.lib
+*.pdb
+*.ilk
+*.exp
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+_deps/
+
+# FetchContent cache (large — do not commit)
+build/_deps/
+
+# Visual Studio
+.vs/
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+
+# VS Code
+.vscode/
+!.vscode/extensions.json
+
+# External SDKs with binaries (committed separately or via secure copy)
+external/dlss/
+external/waveworks/
+
+# Logs
+*.log
+console_log*.txt
+init_log.txt
+
+# ImGui layout
+imgui.ini
+
+# Lab scratch screenshots. Visual checkpoint PNGs that should survive in
+# git history live next to their source (e.g. lab/skinned_test/*.png) and
+# are added explicitly.
+lab/screenshots/
+
+# VkPipelineCache blobs are GPU- and driver-specific binary artifacts
+# produced by the lab harness (skinned_test) at shutdown. They should
+# never land in git — they're transient perf helpers.
+pipeline_cache.bin
+**/pipeline_cache.bin
+
+# OS
+Thumbs.db
+.DS_Store
+ehthumbs.db
+Desktop.ini
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Build output (core-only flavor) + scratch
+build-core/
+tmp/
+
+# Internal development artifacts — kept on disk for local workflow, not
+# published to the open-source repo: private-game/consumer planning,
+# AI-session progress logs, and session-protocol skills.
+/CLAUDE.md
+/ROADMAP.md
+/ROADMAP_ARCHIVE.md
+/MEMORY.md
+/memories/
+/.claude/skills/
+/.claude/worktrees/
+/.claude/settings.json
+/tools/archive_session.py
+/tools/check_roadmap_size.py

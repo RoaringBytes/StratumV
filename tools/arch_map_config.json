@@ -1,0 +1,104 @@
+{
+  "_comment": "Layer classification for StratumV engine modules. Used by engine_ref.py.",
+  "engine_root": "src/engine",
+  "layers": {
+    "1": {
+      "name": "Platform",
+      "description": "Window, types, quality presets — foundational platform abstractions"
+    },
+    "2": {
+      "name": "Vulkan Abstraction",
+      "description": "Vulkan wrappers — device, swapchain, buffers, textures, pipelines, RT, DLSS"
+    },
+    "3": {
+      "name": "Render Graph",
+      "description": "Data-driven render graph, built-in passes, post-process, UI layer"
+    },
+    "4": {
+      "name": "Engine Services",
+      "description": "Input, camera, audio, ECS, events, config, world state, persistence"
+    },
+    "5": {
+      "name": "Dev / Debug",
+      "description": "TCP debug server"
+    },
+    "6": {
+      "name": "Game Interface",
+      "description": "DLL plugin system, system registry, base context — the DLL boundary"
+    }
+  },
+  "directory_rules": {
+    "vk": 2,
+    "graph": 3,
+    "passes": 3,
+    "ui": 3,
+    "net": 4
+  },
+  "module_overrides": {
+    "DlssWrapper":           2,
+    "Window":                1,
+    "Types":                 1,
+    "QualityPresets":        1,
+    "Camera":                4,
+    "ICameraMode":           4,
+    "FreeFlyCamera":         4,
+    "FollowCamera":          4,
+    "OrbitCamera":           4,
+    "Input":                 4,
+    "InputAction":           4,
+    "InputBindings":         4,
+    "Audio":                 4,
+    "AudioTypes":            4,
+    "Config":                4,
+    "EngineLog":             4,
+    "Events":                4,
+    "Components":            4,
+    "PostProcess":           3,
+    "RenderPass":            3,
+    "WorldStateTypes":       4,
+    "WorldStateIO":          4,
+    "SceneStatePersistence": 4,
+    "SceneStateVersioning":  4,
+    "SceneLoader":           5,
+    "MaterialPipeline":      5,
+    "AnimationTypes":        4,
+    "AnimationSystem":       4,
+    "AnimationStateMachine": 4,
+    "BlendTree":             4,
+    "AnimatorComponent":     4,
+    "IAnimationController":  4,
+    "FrustumCuller":         4,
+    "AssetManifest":         4,
+    "AssetBrowser":          4,
+    "ThumbnailCache":        4,
+    "ReplicationRegistry":   4,
+    "NetTransform":          4,
+    "ParentLink":            4,
+    "LightComponent":        4,
+    "CameraComponent":       4,
+    "MaterialComponent":     4,
+    "ReplicationProtocol":   4,
+    "MsQuicTransport":       4,
+    "PermissionScope":       4,
+    "EditTransaction":       4,
+    "UndoLog":               4,
+    "WorldPersistence":      4,
+    "Sha256":                4,
+    "AssetPersistence":      4,
+    "AssetUploadClient":     4,
+    "MorphTargetTypes":      4,
+    "SkinnedMeshPass":       3,
+    "PhysicsTypes":          4,
+    "IPhysicsContext":       4,
+    "JoltPhysicsContext":    4,
+    "INetworkContext":       4,
+    "DevServer":             5,
+    "DLLLoader":             6,
+    "AssetWatcher":          6,
+    "IModularSystem":        6,
+    "EngineSystem":          6,
+    "SystemRegistry":        6,
+    "BaseSystemContext":     6,
+    "EngineBase":            6
+  }
+}
