@@ -12,6 +12,7 @@ game content, StratumV provides the infrastructure.
 - **Language:** C++20
 - **Platforms:** Windows (full engine) · Linux (headless dedicated server)
 - **Status:** 1.3.10
+- **Site:** [roaringbytes.com/StratumV](https://roaringbytes.com/StratumV/)
 
 ---
 
