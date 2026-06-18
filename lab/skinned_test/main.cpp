@@ -191,11 +191,11 @@ private:
     void maybeStartEditorBridge();        // fires once after welcome
     void publishEntityToBridge(uint32_t entityId);
     void pumpBridgeMoves();               // translate MoveSelf -> SetField
-    void pumpBridgeAssets; // asset push
-    void pumpBridgeParents; // parent sync
-    void pumpBridgeLights; // light sync
-    void pumpBridgeCameras; // camera sync
-    void pumpBridgeMaterials; // material sync
+    void pumpBridgeAssets(); // asset push
+    void pumpBridgeParents(); // parent sync
+    void pumpBridgeLights(); // light sync
+    void pumpBridgeCameras(); // camera sync
+    void pumpBridgeMaterials(); // material sync
     bool uploadAssetBytes(const std::string& relPath,
                           sv::AssetKind      kind,
                           const uint8_t*     data,
@@ -4582,9 +4582,9 @@ bool TestEngine::onFrame(float dt)
     // ── drain replication datagrams ───────────────────
     // Runs before drawDebugUI so the ImGui panel shows the very
     // latest decoded snapshot this frame.
-    drainNetReliableInbox; // Spawn/Despawn first
-    drainAssetInbox; // Announce/Chunk/Ack
-    drainNetInbox; // snapshot datagrams
+    drainNetReliableInbox(); // Spawn/Despawn first
+    drainAssetInbox(); // Announce/Chunk/Ack
+    drainNetInbox(); // snapshot datagrams
 
     // ── editor bridge pump ───────────────────────
     // Start the listener the first time we're welcomed, flush every
@@ -4598,16 +4598,16 @@ bool TestEngine::onFrame(float dt)
         pumpBridgeMoves();
         pumpBridgeAssets();
         pumpBridgeParents();
-        pumpBridgeLights; //
-        pumpBridgeCameras; //
-        pumpBridgeMaterials; //
+        pumpBridgeLights(); //
+        pumpBridgeCameras(); //
+        pumpBridgeMaterials(); //
     }
 
     // ── ImGui frame ───────────────────────────────────────────────
     m_imguiLayer.newFrame();
     drawDebugUI();
     drawAssetPanels();
-    drawReplicatedAssetsPanel; //
+    drawReplicatedAssetsPanel(); //
     drawNetworkDemoPanel();
 
     // handle pending bake before recording the main frame.
