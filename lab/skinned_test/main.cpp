@@ -191,11 +191,11 @@ private:
     void maybeStartEditorBridge();        // fires once after welcome
     void publishEntityToBridge(uint32_t entityId);
     void pumpBridgeMoves();               // translate MoveSelf -> SetField
-    void pumpBridgeAssets; // asset push
-    void pumpBridgeParents; // parent sync
-    void pumpBridgeLights; // light sync
-    void pumpBridgeCameras; // camera sync
-    void pumpBridgeMaterials; // material sync
+    void pumpBridgeAssets();              // asset push
+    void pumpBridgeParents();             // parent sync
+    void pumpBridgeLights();              // light sync
+    void pumpBridgeCameras();             // camera sync
+    void pumpBridgeMaterials();           // material sync
     bool uploadAssetBytes(const std::string& relPath,
                           sv::AssetKind      kind,
                           const uint8_t*     data,
@@ -4582,9 +4582,9 @@ bool TestEngine::onFrame(float dt)
     // ── drain replication datagrams ───────────────────
     // Runs before drawDebugUI so the ImGui panel shows the very
     // latest decoded snapshot this frame.
-    drainNetReliableInbox; // Spawn/Despawn first
-    drainAssetInbox; // Announce/Chunk/Ack
-    drainNetInbox; // snapshot datagrams
+    drainNetReliableInbox(); // Spawn/Despawn first
+    drainAssetInbox();       // Announce/Chunk/Ack
+    drainNetInbox();         // snapshot datagrams
 
     // ── editor bridge pump ───────────────────────
     // Start the listener the first time we're welcomed, flush every
@@ -4598,16 +4598,16 @@ bool TestEngine::onFrame(float dt)
         pumpBridgeMoves();
         pumpBridgeAssets();
         pumpBridgeParents();
-        pumpBridgeLights; //
-        pumpBridgeCameras; //
-        pumpBridgeMaterials; //
+        pumpBridgeLights();
+        pumpBridgeCameras();
+        pumpBridgeMaterials();
     }
 
     // ── ImGui frame ───────────────────────────────────────────────
     m_imguiLayer.newFrame();
     drawDebugUI();
     drawAssetPanels();
-    drawReplicatedAssetsPanel; //
+    drawReplicatedAssetsPanel();
     drawNetworkDemoPanel();
 
     // handle pending bake before recording the main frame.
@@ -4979,11 +4979,13 @@ int main(int argc, char** argv)
     // default port is 9001, so a typical invocation is
     //   skinned_test --connect 127.0.0.1:9001
     // Public setters live on TestEngine via the new helper accessors.
+    bool wantGolden = false;
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--auto-bake") == 0) engine.setAutoBake(true);
         if (strcmp(argv[i], "--auto-exit") == 0) engine.setAutoExit(true);
         if (strcmp(argv[i], "--render-golden") == 0 && i + 1 < argc) {
             engine.setRenderGoldensMode(argv[++i]);
+            wantGolden = true;
         }
         if (strcmp(argv[i], "--connect") == 0 && i + 1 < argc) {
             engine.setNetworkTarget(argv[++i]);
@@ -5010,6 +5012,22 @@ int main(int argc, char** argv)
         if (strcmp(argv[i], "--editor-bridge-port") == 0 && i + 1 < argc) {
             engine.setEditorBridgePort(
                 static_cast<uint16_t>(std::atoi(argv[++i])));
+        }
+    }
+    // Golden-capture mode renders a known skinned mesh. If that input
+    // (ASSET_PATH) is absent — e.g. a public checkout that doesn't ship
+    // the binary asset — exit with CTest's skip code instead of failing
+    // hard in init, so the render-regression suite reports "Skipped"
+    // rather than a spurious failure. See SKIP_RETURN_CODE in
+    // tests/CMakeLists.txt.
+    if (wantGolden) {
+        if (FILE* f = fopen(ASSET_PATH, "rb")) {
+            fclose(f);
+        } else {
+            fprintf(stderr,
+                    "[golden] SKIP: input mesh '%s' not found — "
+                    "golden capture skipped (exit 125)\n", ASSET_PATH);
+            return 125;
         }
     }
     return engine.run(argc, argv);

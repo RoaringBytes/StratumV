@@ -219,6 +219,20 @@ if(STRATUMV_GOLDEN_TESTS AND NOT STRATUMV_CORE_ONLY)
         set(SV_GOLDEN_CAPTURE_DIR "${CMAKE_CURRENT_BINARY_DIR}/golden_captures")
         file(MAKE_DIRECTORY "${SV_GOLDEN_CAPTURE_DIR}")
 
+        # The capture step renders a known skinned mesh; that input
+        # (assets/sample_character.fbx) is a binary asset that is not
+        # shipped with the public repository. Register the golden tests
+        # only when the mesh is present so a fresh clone stays green
+        # (the suite is simply absent) instead of reporting hard
+        # failures. Drop the mesh in and re-run CMake to enable it. As a
+        # second line of defence the capture also self-skips at runtime
+        # via SKIP_RETURN_CODE if the mesh disappears after configure.
+        set(SV_GOLDEN_INPUT_MESH "${CMAKE_SOURCE_DIR}/assets/sample_character.fbx")
+        if(NOT EXISTS "${SV_GOLDEN_INPUT_MESH}")
+            message(STATUS "[StratumV] Golden image tests DISABLED — input mesh "
+                "'assets/sample_character.fbx' not present. Provide it and "
+                "re-run CMake to enable the render-regression suite.")
+        else()
         add_test(
             NAME render_golden_capture
             COMMAND $<TARGET_FILE:skinned_test> --render-golden "${SV_GOLDEN_CAPTURE_DIR}"
@@ -234,6 +248,7 @@ if(STRATUMV_GOLDEN_TESTS AND NOT STRATUMV_CORE_ONLY)
         set_tests_properties(render_golden_capture PROPERTIES
             FIXTURES_SETUP   golden_fixture
             ENVIRONMENT      "SV_GOLDEN_CAPTURE_DIR=${SV_GOLDEN_CAPTURE_DIR}"
+            SKIP_RETURN_CODE 125
             TIMEOUT          60
             LABELS           "golden"
         )
@@ -267,5 +282,6 @@ if(STRATUMV_GOLDEN_TESTS AND NOT STRATUMV_CORE_ONLY)
 
         message(STATUS "[StratumV] Golden tests enabled "
             "(capture dir: ${SV_GOLDEN_CAPTURE_DIR})")
+        endif()
     endif()
 endif()
