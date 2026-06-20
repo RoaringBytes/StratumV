@@ -70,17 +70,3 @@ __pycache__/
 # Build output (core-only flavor) + scratch
 build-core/
 tmp/
-
-# Internal development artifacts — kept on disk for local workflow, not
-# published to the open-source repo: private-game/consumer planning,
-# AI-session progress logs, and session-protocol skills.
-/CLAUDE.md
-/ROADMAP.md
-/ROADMAP_ARCHIVE.md
-/MEMORY.md
-/memories/
-/.claude/skills/
-/.claude/worktrees/
-/.claude/settings.json
-/tools/archive_session.py
-/tools/check_roadmap_size.py
