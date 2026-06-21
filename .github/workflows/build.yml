@@ -22,9 +22,16 @@ jobs:
         uses: actions/cache@v4
         with:
           path: build/_deps
-          key: fetchcontent-${{ hashFiles('CMakeLists.txt') }}
+          # The cached _deps tree holds COMPILED artifacts (e.g. glslang's
+          # precompiled header). Reusing them across a Windows-image / MSVC
+          # bump triggers "error C1853: precompiled header file is from a
+          # different version of the compiler". Keying on the runner image
+          # version makes an image update bust the cache automatically, and
+          # restore-keys is scoped to the same image so a stale-compiler
+          # cache is never used as a fallback.
+          key: fetchcontent-${{ runner.os }}-${{ env.ImageVersion }}-${{ hashFiles('CMakeLists.txt') }}
           restore-keys: |
-            fetchcontent-
+            fetchcontent-${{ runner.os }}-${{ env.ImageVersion }}-
 
       - name: Configure CMake
         run: >
