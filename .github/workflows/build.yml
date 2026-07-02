@@ -37,12 +37,18 @@ jobs:
         run: >
           cmake -B build
           -G "Visual Studio 17 2022" -A x64
+          -DSTRATUMV_BUILD_TESTS=ON
           -DSTRATUMV_ENABLE_DLSS=OFF
           -DSTRATUMV_ENABLE_SHARC=OFF
           -DSTRATUMV_ENABLE_NTC=OFF
 
       - name: Build
         run: cmake --build build --config Release --parallel
+
+      - name: Run tests
+        # CPU-side unit suite. Golden-image (GPU) tests stay opt-in via
+        # STRATUMV_GOLDEN_TESTS and never run on hosted runners.
+        run: ctest --test-dir build -C Release --output-on-failure
 
       - name: Verify library output
         shell: pwsh
@@ -81,33 +87,34 @@ jobs:
             pkg-config \
             libssl-dev
 
-      - name: Download MsQuic 2.5.6 Linux OpenSSL3 prebuilt
-        # The GitHub release artifact name has varied across MsQuic
-        # versions. For 2.5.6 we try the OpenSSL3 variant first; the
-        # CI job is allowed to fail if the asset is absent so the
-        # Windows build still stands alone until the Linux drop is
-        # available upstream.
-        continue-on-error: true
+      - name: Provision MsQuic (headers from source tag, .so from packages.microsoft.com)
+        # Upstream stopped attaching Linux prebuilt tarballs to GitHub
+        # releases (v2.5.6's assets are gone entirely — see issue #12),
+        # so the old release-asset download 404s. Instead: headers come
+        # from a sparse checkout of the pinned source tag, the runtime
+        # .so comes from Microsoft's apt repo (libmsquic). This step is
+        # gating on purpose — if provisioning breaks we want a red X.
         run: |
           set -euxo pipefail
-          mkdir -p ${{ github.workspace }}/msquic
-          # Prefer the OpenSSL3 asset; fall back to the openssl1 name.
-          URL_OSSL3="https://github.com/microsoft/msquic/releases/download/v2.5.6/msquic_linux_x64_Release_openssl3.tar.gz"
-          URL_OSSL1="https://github.com/microsoft/msquic/releases/download/v2.5.6/msquic_linux_x64_Release_openssl.tar.gz"
-          if curl -fsSL "${URL_OSSL3}" -o msquic.tar.gz; then
-            echo "Downloaded OpenSSL3 prebuilt"
-          else
-            curl -fsSL "${URL_OSSL1}" -o msquic.tar.gz
-            echo "Downloaded OpenSSL1 prebuilt"
-          fi
-          tar -xf msquic.tar.gz -C ${{ github.workspace }}/msquic --strip-components=1
-          ls -la ${{ github.workspace }}/msquic
-          find ${{ github.workspace }}/msquic -name 'libmsquic.so*' -o -name 'msquic.h'
+          MSQUIC_TAG=v2.5.6   # keep in sync with the Windows NuGet pin in CMakeLists.txt
+          ROOT=${{ github.workspace }}/msquic
+          mkdir -p "$ROOT/include" "$ROOT/bin"
+          # Headers: sparse checkout of src/inc at the pinned tag
+          git clone --depth 1 --branch "$MSQUIC_TAG" --filter=blob:none --sparse \
+            https://github.com/microsoft/msquic msquic-src
+          git -C msquic-src sparse-checkout set src/inc
+          cp msquic-src/src/inc/*.h "$ROOT/include/"
+          # Runtime: libmsquic from packages.microsoft.com (2.5.x line)
+          curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -o pmp.deb
+          sudo dpkg -i pmp.deb
+          sudo apt-get update
+          apt-get download libmsquic
+          dpkg-deb -x libmsquic_*_amd64.deb pkg
+          cp -a pkg/usr/lib/x86_64-linux-gnu/libmsquic.so* "$ROOT/bin/" \
+            || cp -a pkg/usr/lib/libmsquic.so* "$ROOT/bin/"
+          ls -la "$ROOT/bin" "$ROOT/include"
 
       - name: Configure CMake (STRATUMV_CORE_ONLY=ON)
-        # continue-on-error follows the download step so a temporary
-        # MsQuic artifact outage does not red-X the whole matrix.
-        continue-on-error: true
         run: >
           cmake -B build
           -G Ninja
@@ -117,11 +124,9 @@ jobs:
           -DSTRATUMV_LINUX_MSQUIC_ROOT=${{ github.workspace }}/msquic
 
       - name: Build stratumv_core + stratumv_server + sv_tests
-        continue-on-error: true
         run: cmake --build build --parallel
 
       - name: Verify stratumv_core.a and stratumv_server outputs
-        continue-on-error: true
         shell: bash
         run: |
           set -eu
@@ -136,7 +141,6 @@ jobs:
           ls -la build/libstratumv_core.a build/src/stratumv_server/stratumv_server
 
       - name: Run core ctest subset
-        continue-on-error: true
         working-directory: build
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/msquic/bin:${{ github.workspace }}/msquic/lib
