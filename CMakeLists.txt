@@ -111,13 +111,13 @@ if(NOT STRATUMV_CORE_ONLY)
 
     FetchContent_Declare(tinygltf
         GIT_REPOSITORY https://github.com/syoyo/tinygltf.git
-        GIT_TAG        v2.9.5
+        GIT_TAG        v3.0.0
         GIT_SHALLOW    TRUE
     )
 
     FetchContent_Declare(meshoptimizer
         GIT_REPOSITORY https://github.com/zeux/meshoptimizer.git
-        GIT_TAG        v0.22
+        GIT_TAG        v1.2
         GIT_SHALLOW    TRUE
     )
 
@@ -137,7 +137,7 @@ if(NOT STRATUMV_CORE_ONLY)
     set(SKIP_GLSLANG_INSTALL    ON  CACHE BOOL "" FORCE)
     FetchContent_Declare(glslang
         GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
-        GIT_TAG        15.1.0
+        GIT_TAG        16.3.0
         GIT_SHALLOW    TRUE
     )
 
