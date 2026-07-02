@@ -47,6 +47,11 @@ bool VkSwap::init(VkCtx& ctx, uint32_t width, uint32_t height, bool vsync)
     createInfo.imageExtent = extent;
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    // TRANSFER_SRC (when the surface supports it) lets screenshot /
+    // golden-capture readback copy the swapchain image legally
+    // (VUID-vkCmdCopyImageToBuffer-srcImage-00186).
+    if (caps.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT)
+        createInfo.imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 
     auto& families = ctx.queueFamilies();
     uint32_t queueFamilyIndices[] = { families.graphics, families.present };
