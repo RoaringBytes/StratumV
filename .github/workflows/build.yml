@@ -87,27 +87,32 @@ jobs:
             pkg-config \
             libssl-dev
 
-      - name: Download MsQuic 2.5.6 Linux OpenSSL3 prebuilt
-        # The GitHub release artifact name has varied across MsQuic
-        # versions. For 2.5.6 we try the OpenSSL3 variant first, then
-        # the openssl1 name. 2.5.6 is the last upstream release with
-        # Linux prebuilt assets (see issue #12) — if this ever 404s the
-        # job SHOULD go red so we notice, hence no continue-on-error.
+      - name: Provision MsQuic (headers from source tag, .so from packages.microsoft.com)
+        # Upstream stopped attaching Linux prebuilt tarballs to GitHub
+        # releases (v2.5.6's assets are gone entirely — see issue #12),
+        # so the old release-asset download 404s. Instead: headers come
+        # from a sparse checkout of the pinned source tag, the runtime
+        # .so comes from Microsoft's apt repo (libmsquic). This step is
+        # gating on purpose — if provisioning breaks we want a red X.
         run: |
           set -euxo pipefail
-          mkdir -p ${{ github.workspace }}/msquic
-          # Prefer the OpenSSL3 asset; fall back to the openssl1 name.
-          URL_OSSL3="https://github.com/microsoft/msquic/releases/download/v2.5.6/msquic_linux_x64_Release_openssl3.tar.gz"
-          URL_OSSL1="https://github.com/microsoft/msquic/releases/download/v2.5.6/msquic_linux_x64_Release_openssl.tar.gz"
-          if curl -fsSL "${URL_OSSL3}" -o msquic.tar.gz; then
-            echo "Downloaded OpenSSL3 prebuilt"
-          else
-            curl -fsSL "${URL_OSSL1}" -o msquic.tar.gz
-            echo "Downloaded OpenSSL1 prebuilt"
-          fi
-          tar -xf msquic.tar.gz -C ${{ github.workspace }}/msquic --strip-components=1
-          ls -la ${{ github.workspace }}/msquic
-          find ${{ github.workspace }}/msquic -name 'libmsquic.so*' -o -name 'msquic.h'
+          MSQUIC_TAG=v2.5.6   # keep in sync with the Windows NuGet pin in CMakeLists.txt
+          ROOT=${{ github.workspace }}/msquic
+          mkdir -p "$ROOT/include" "$ROOT/bin"
+          # Headers: sparse checkout of src/inc at the pinned tag
+          git clone --depth 1 --branch "$MSQUIC_TAG" --filter=blob:none --sparse \
+            https://github.com/microsoft/msquic msquic-src
+          git -C msquic-src sparse-checkout set src/inc
+          cp msquic-src/src/inc/*.h "$ROOT/include/"
+          # Runtime: libmsquic from packages.microsoft.com (2.5.x line)
+          curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -o pmp.deb
+          sudo dpkg -i pmp.deb
+          sudo apt-get update
+          apt-get download libmsquic
+          dpkg-deb -x libmsquic_*_amd64.deb pkg
+          cp -a pkg/usr/lib/x86_64-linux-gnu/libmsquic.so* "$ROOT/bin/" \
+            || cp -a pkg/usr/lib/libmsquic.so* "$ROOT/bin/"
+          ls -la "$ROOT/bin" "$ROOT/include"
 
       - name: Configure CMake (STRATUMV_CORE_ONLY=ON)
         run: >
