@@ -117,7 +117,7 @@ if(NOT STRATUMV_CORE_ONLY)
 
     FetchContent_Declare(meshoptimizer
         GIT_REPOSITORY https://github.com/zeux/meshoptimizer.git
-        GIT_TAG        v0.22
+        GIT_TAG        v1.2
         GIT_SHALLOW    TRUE
     )
 
