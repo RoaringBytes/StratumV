@@ -56,7 +56,7 @@ include(FetchContent)
 # the asset pipeline + scene loader + persistence modules) can consume it.
 FetchContent_Declare(json
     GIT_REPOSITORY https://github.com/nlohmann/json.git
-    GIT_TAG        v3.11.3
+    GIT_TAG        v3.12.0
     GIT_SHALLOW    TRUE
 )
 
@@ -76,7 +76,7 @@ if(NOT STRATUMV_CORE_ONLY)
 
     FetchContent_Declare(glm
         GIT_REPOSITORY https://github.com/g-truc/glm.git
-        GIT_TAG        1.0.1
+        GIT_TAG        1.0.3
         GIT_SHALLOW    TRUE
     )
 
@@ -98,14 +98,14 @@ if(NOT STRATUMV_CORE_ONLY)
 
     FetchContent_Declare(VulkanMemoryAllocator
         GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-        GIT_TAG        v3.2.1
+        GIT_TAG        v3.4.0
         GIT_SHALLOW    TRUE
     )
     set(VMA_VULKAN_VERSION 1003000 CACHE STRING "" FORCE)
 
     FetchContent_Declare(entt
         GIT_REPOSITORY https://github.com/skypjack/entt.git
-        GIT_TAG        v3.14.0
+        GIT_TAG        v3.16.0
         GIT_SHALLOW    TRUE
     )
 
@@ -124,7 +124,7 @@ if(NOT STRATUMV_CORE_ONLY)
     # ufbx: single-source FBX file loader (MIT license)
     FetchContent_Declare(ufbx
         GIT_REPOSITORY https://github.com/ufbx/ufbx.git
-        GIT_TAG        v0.21.3
+        GIT_TAG        v0.23.0
         GIT_SHALLOW    TRUE
     )
 
@@ -153,7 +153,7 @@ if(NOT STRATUMV_CORE_ONLY)
 
     FetchContent_Declare(miniaudio
         GIT_REPOSITORY https://github.com/mackron/miniaudio.git
-        GIT_TAG        0.11.21
+        GIT_TAG        0.11.25
         GIT_SHALLOW    TRUE
     )
 

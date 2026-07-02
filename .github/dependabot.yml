@@ -1,0 +1,15 @@
+# Dependabot configuration.
+#
+# Note: the engine's C/C++ dependencies are pinned by GIT_TAG via CMake
+# FetchContent, which Dependabot does not natively track. This config keeps
+# the GitHub Actions workflow actions current; source dependency bumps are
+# handled by the project's maintenance process (see CONTRIBUTING.md).
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci"
