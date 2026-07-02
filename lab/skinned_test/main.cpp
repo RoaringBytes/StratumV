@@ -2326,7 +2326,7 @@ void TestEngine::initDescriptors()
 }
 
 // ──────────────────────────────────────────────────────────────────
-void TestEngine::updateSceneUBO(float dt)
+void TestEngine::updateSceneUBO(float /*dt*/)
 {
     float aspect = m_window.aspect();
     glm::mat4 view = m_camera.viewMatrix();
@@ -4908,7 +4908,6 @@ void TestEngine::onShutdown()
 // ──────────────────────────────────────────────────────────────────
 void TestEngine::captureFramebuffer(uint32_t imageIndex)
 {
-    VkDevice     device = m_vkCtx.device();
     VmaAllocator alloc  = m_vkCtx.allocator();
     auto ext = m_swapchain.extent();
     uint32_t w = ext.width, h = ext.height;

@@ -1552,8 +1552,8 @@ int main(int argc, char** argv) {
         std::vector<std::shared_ptr<ClientState>> clients;
         clients.reserve(16);
 
-        using clock_t = std::chrono::steady_clock;
-        const auto startWall = clock_t::now();
+        using steady_clock_t = std::chrono::steady_clock;
+        const auto startWall = steady_clock_t::now();
         const auto tickPeriod = std::chrono::nanoseconds(
             static_cast<int64_t>(1e9 / static_cast<double>(tickHz)));
         auto nextTick = startWall + tickPeriod;
@@ -1627,7 +1627,7 @@ int main(int argc, char** argv) {
             }
 
             // ── Tick deadline: update + broadcast ────────────────
-            auto now = clock_t::now();
+            auto now = steady_clock_t::now();
             if (now >= nextTick) {
                 const double elapsedSec =
                     std::chrono::duration<double>(now - startWall).count();
