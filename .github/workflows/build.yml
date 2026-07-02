@@ -65,7 +65,7 @@ jobs:
 
   # ── Linux core-only build (stratumv_core + stratumv_server) ──
   # Builds the Layer 4 networking + replication carve-out on Ubuntu
-  # against a prebuilt MsQuic 2.5.6 Linux OpenSSL3 tarball. The resulting
+  # against a provisioned MsQuic 2.5.8 (headers + libmsquic.so). The resulting
   # stratumv_server.exe (Linux ELF) is the same binary the Linux server
   # deployment would run. No Vulkan, glslang, glm, ozz, or ImGui on
   # this path — if any of those creep in the configure fails because
@@ -96,7 +96,7 @@ jobs:
         # gating on purpose — if provisioning breaks we want a red X.
         run: |
           set -euxo pipefail
-          MSQUIC_TAG=v2.5.6   # keep in sync with the Windows NuGet pin in CMakeLists.txt
+          MSQUIC_TAG=v2.5.8   # keep in sync with the Windows NuGet pin in CMakeLists.txt
           ROOT=${{ github.workspace }}/msquic
           mkdir -p "$ROOT/include" "$ROOT/bin"
           # Headers: sparse checkout of src/inc at the pinned tag
