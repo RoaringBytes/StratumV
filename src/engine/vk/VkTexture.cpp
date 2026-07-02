@@ -571,7 +571,7 @@ bool VkTex::createGPUImage(VkCtx& ctx, const uint8_t* pixels, bool srgb)
     return true;
 }
 
-void VkTex::generateMipmaps(VkCtx& ctx, VkFormat format)
+void VkTex::generateMipmaps(VkCtx& ctx, VkFormat /*format*/)
 {
     auto cmd = ctx.beginSingleTimeCommands();
 

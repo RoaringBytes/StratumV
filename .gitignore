@@ -69,6 +69,7 @@ __pycache__/
 
 # Build output (core-only flavor) + scratch
 build-core/
+build-w4/
 tmp/
 
 # Automated maintenance run artifacts

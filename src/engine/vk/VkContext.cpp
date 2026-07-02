@@ -18,6 +18,9 @@
 namespace sv {
 
 // ── Debug messenger callback ─────────────────────────────────────
+// Only referenced by the #ifdef _DEBUG messenger setup in init();
+// compile it under the same guard so Release doesn't emit C4505.
+#ifdef _DEBUG
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT severity,
     VkDebugUtilsMessageTypeFlagsEXT /*type*/,
@@ -28,6 +31,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
         fprintf(stderr, "[VK] %s\n", data->pMessage);
     return VK_FALSE;
 }
+#endif
 
 void VkCtx::requestOptionalDeviceExtension(const char* extName) {
     m_optionalDeviceExtNames.push_back(extName);

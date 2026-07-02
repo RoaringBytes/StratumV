@@ -58,36 +58,36 @@ public:
 
     // Called after init with a mutable SystemContext. Systems can set
     // function pointers to expose services to other DLL systems.
-    virtual void postInit(SystemContext& ctx) {}
+    virtual void postInit(SystemContext& /*ctx*/) {}
 
     // ── Per-frame (all optional) ──���──────────────────────────────
-    virtual void tick(float dt, const SystemContext& ctx) {}
+    virtual void tick(float /*dt*/, const SystemContext& /*ctx*/) {}
 
     // PreDraw: called inside recordMainPass BEFORE terrain/ocean draw.
-    virtual void recordPreDraw(VkCommandBuffer cmd, const FrameData& frame,
-                               const SystemContext& ctx) {}
+    virtual void recordPreDraw(VkCommandBuffer /*cmd*/, const FrameData& /*frame*/,
+                               const SystemContext& /*ctx*/) {}
 
     // PostDraw: called inside recordMainPass AFTER terrain/ocean draw.
-    virtual void recordPostDraw(VkCommandBuffer cmd, const FrameData& frame,
-                                const SystemContext& ctx) {}
+    virtual void recordPostDraw(VkCommandBuffer /*cmd*/, const FrameData& /*frame*/,
+                                const SystemContext& /*ctx*/) {}
 
     // ShadowDraw: called per cascade inside recordShadowPass AFTER terrain draw.
     // Pipeline, viewport, scissor, and descriptor set 0 are already bound by engine.
-    virtual void recordShadowDraw(VkCommandBuffer cmd, const FrameData& frame,
-                                  const SystemContext& ctx, uint32_t cascadeIndex) {}
+    virtual void recordShadowDraw(VkCommandBuffer /*cmd*/, const FrameData& /*frame*/,
+                                  const SystemContext& /*ctx*/, uint32_t /*cascadeIndex*/) {}
 
     // UIPass: called in recordFrame AFTER post-process, BEFORE ImGui.
     // Swapchain is in COLOR_ATTACHMENT_OPTIMAL. Use for UI-layer effects.
-    virtual void recordUIPass(VkCommandBuffer cmd, const FrameData& frame,
-                              const SystemContext& ctx) {}
+    virtual void recordUIPass(VkCommandBuffer /*cmd*/, const FrameData& /*frame*/,
+                              const SystemContext& /*ctx*/) {}
 
     // Compute: called in recordFrame BEFORE ocean compute dispatch.
-    virtual void recordCompute(VkCommandBuffer cmd, const FrameData& frame,
-                               const SystemContext& ctx) {}
+    virtual void recordCompute(VkCommandBuffer /*cmd*/, const FrameData& /*frame*/,
+                               const SystemContext& /*ctx*/) {}
 
     // PostUIPass: called AFTER ImGui overlay rendering, BEFORE present.
-    virtual void recordPostUIPass(VkCommandBuffer cmd, const FrameData& frame,
-                                  const SystemContext& ctx) {}
+    virtual void recordPostUIPass(VkCommandBuffer /*cmd*/, const FrameData& /*frame*/,
+                                  const SystemContext& /*ctx*/) {}
 
     // ImGui calls (drawn inside the admin panel area)
     virtual void drawUI() {}
@@ -109,14 +109,14 @@ public:
     // Called when engine-owned GPU resources are destroyed and recreated
     // (e.g. resolution change, DLSS mode switch). Systems holding
     // descriptor sets that reference these resources must rebind here.
-    virtual void onResourcesInvalidated(const SystemContext& ctx) {}
+    virtual void onResourcesInvalidated(const SystemContext& /*ctx*/) {}
 
     // ── Hot-reload ────────��──────────────────────────────────────
-    virtual void onReload(const SystemContext& ctx) {}
+    virtual void onReload(const SystemContext& /*ctx*/) {}
 
     // State serialization (JSON string, safe across DLL boundaries)
     virtual std::string serializeState() { return "{}"; }
-    virtual void deserializeState(const std::string& json) {}
+    virtual void deserializeState(const std::string& /*json*/) {}
 };
 
 // ── DLL export interface ────���────────────────────────────────────

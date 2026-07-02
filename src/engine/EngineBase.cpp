@@ -37,7 +37,7 @@ EngineBase::~EngineBase() = default;
 // run — full lifecycle: init -> loop -> shutdown
 // ═══════════════════════════════════════════════════════════════
 
-int EngineBase::run(int argc, char** argv)
+int EngineBase::run(int /*argc*/, char** /*argv*/)
 {
     SV_LOG_INFO("Engine", "StratumV EngineBase starting");
 
@@ -190,7 +190,7 @@ void EngineBase::setDevServerPort(uint16_t port)             { m_devServerPort  
 // Screenshot capture — default stub (games override)
 // ═══════════════════════════════════════════════════════════════
 
-bool EngineBase::captureScreenshot(const std::string& path)
+bool EngineBase::captureScreenshot(const std::string& /*path*/)
 {
     SV_LOG_WARN("Engine", "captureScreenshot() not implemented — override in game engine");
     return false;
