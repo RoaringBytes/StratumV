@@ -24,7 +24,7 @@ here modifies the terms under which StratumV itself is distributed.
 | meshoptimizer | v0.22 | MIT | https://github.com/zeux/meshoptimizer |
 | ufbx | v0.21.3 | MIT | https://github.com/ufbx/ufbx |
 | glslang | 15.1.0 | BSD-3-Clause (and others) | https://github.com/KhronosGroup/glslang |
-| Dear ImGui | v1.91.9 | MIT | https://github.com/ocornut/imgui |
+| Dear ImGui | v1.92.8 | MIT | https://github.com/ocornut/imgui |
 | miniaudio | 0.11.21 | Public Domain (Unlicense) / MIT-0 | https://github.com/mackron/miniaudio |
 | ozz-animation | 0.16.0 | MIT | https://github.com/guillaumeblanc/ozz-animation |
 | MsQuic | 2.5.6 | MIT | https://github.com/microsoft/msquic |
