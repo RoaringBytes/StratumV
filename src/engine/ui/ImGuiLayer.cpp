@@ -69,17 +69,19 @@ bool ImGuiLayer::init(GLFWwindow* window, VkCtx& ctx, VkFormat swapchainFormat, 
     vkInfo.DescriptorPool              = m_pool;
     vkInfo.MinImageCount               = 2;
     vkInfo.ImageCount                  = imageCount;
-    vkInfo.MSAASamples                 = VK_SAMPLE_COUNT_1_BIT;
+    vkInfo.ApiVersion                  = VK_API_VERSION_1_3;
     vkInfo.UseDynamicRendering         = true;
-    vkInfo.PipelineRenderingCreateInfo = pipelineRI;
+    // Since ImGui 1.92: pipeline state lives in PipelineInfoMain
+    vkInfo.PipelineInfoMain.MSAASamples                 = VK_SAMPLE_COUNT_1_BIT;
+    vkInfo.PipelineInfoMain.PipelineRenderingCreateInfo = pipelineRI;
 
     if (!ImGui_ImplVulkan_Init(&vkInfo)) {
         fprintf(stderr, "[ImGui] Failed to init Vulkan backend\n");
         return false;
     }
 
-    // Upload font textures (no command buffer required in v1.90+)
-    ImGui_ImplVulkan_CreateFontsTexture();
+    // Since ImGui 1.92 font/texture upload is handled automatically by the
+    // backend (ImGuiBackendFlags_RendererHasTextures); no explicit call needed.
 
     m_initialized = true;
     printf("[ImGui] Initialized (dynamic rendering, format=%d, images=%u)\n",
