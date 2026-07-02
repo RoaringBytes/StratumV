@@ -45,30 +45,48 @@ Debian 12 bookworm ships cmake 3.25, g++ 12, OpenSSL 3.0 — all
 adequate. Ubuntu 22.04 ships cmake 3.22 which is too old; install a
 newer cmake from `apt.kitware.com` or use the snap.
 
-## 2. Download + extract the MsQuic prebuilt
+## 2. Provision MsQuic (headers + prebuilt libmsquic.so)
 
-StratumV pins MsQuic 2.5.6. On Linux the build consumes a prebuilt
-tarball with the OpenSSL3 TLS backend. Download from the official
-[microsoft/msquic](https://github.com/microsoft/msquic/releases/tag/v2.5.6)
-release page:
+StratumV pins MsQuic 2.5.8. Upstream stopped attaching Linux prebuilt
+tarballs to GitHub releases (the old release-asset download 404s — see
+issue #12), so the recipe is now two-part: headers come from a sparse
+checkout of the pinned source tag, and the runtime `libmsquic.so`
+comes from Microsoft's apt repo (`packages.microsoft.com`). This is
+the same provisioning CI uses.
 
 ```sh
-cd /opt
-sudo curl -L -o msquic-2.5.6.tar.gz \
-    https://github.com/microsoft/msquic/releases/download/v2.5.6/msquic_linux_x64_Release_openssl3.tar.gz
-sudo mkdir -p msquic-2.5.6
-sudo tar -xf msquic-2.5.6.tar.gz -C msquic-2.5.6 --strip-components=1
-ls /opt/msquic-2.5.6
+MSQUIC_TAG=v2.5.8   # keep in sync with the pin in CMakeLists.txt
+cd /tmp
+
+# Headers: sparse checkout of src/inc at the pinned tag
+git clone --depth 1 --branch "$MSQUIC_TAG" --filter=blob:none --sparse \
+    https://github.com/microsoft/msquic msquic-src
+git -C msquic-src sparse-checkout set src/inc
+
+# Runtime: libmsquic from packages.microsoft.com (2.5.x line)
+curl -fsSL https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb -o pmp.deb
+sudo dpkg -i pmp.deb
+sudo apt-get update
+apt-get download libmsquic
+dpkg-deb -x libmsquic_*_amd64.deb pkg
+
+# Assemble the root layout CMake expects
+sudo mkdir -p /opt/msquic-2.5.8/include /opt/msquic-2.5.8/bin
+sudo cp msquic-src/src/inc/*.h /opt/msquic-2.5.8/include/
+sudo cp -a pkg/usr/lib/x86_64-linux-gnu/libmsquic.so* /opt/msquic-2.5.8/bin/ \
+    || sudo cp -a pkg/usr/lib/libmsquic.so* /opt/msquic-2.5.8/bin/
+
+ls /opt/msquic-2.5.8
 # expected layout:
-#   bin/libmsquic.so          (or .so.2 / .so.2.5.6)
+#   bin/libmsquic.so          (or .so.2 / .so.2.5.8)
 #   include/msquic.h
 #   include/msquic_posix.h
 ```
 
-If the OpenSSL3 tarball is unavailable for a given release, the
-OpenSSL1 flavor (`msquic_linux_x64_Release_openssl.tar.gz`) is wire-
-compatible; it just uses OpenSSL 1.1 for TLS instead of 3.0. Debian 12
-has both available so either works.
+On Ubuntu, swap the config deb for the matching one, e.g.
+`https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb`.
+The apt package uses the OpenSSL TLS backend and is wire-compatible
+with the Windows Schannel build.
 
 ## 3. Configure the build
 
@@ -82,7 +100,7 @@ cmake -B build \
     -DCMAKE_BUILD_TYPE=Release \
     -DSTRATUMV_CORE_ONLY=ON \
     -DSTRATUMV_BUILD_TESTS=ON \
-    -DSTRATUMV_LINUX_MSQUIC_ROOT=/opt/msquic-2.5.6
+    -DSTRATUMV_LINUX_MSQUIC_ROOT=/opt/msquic-2.5.8
 ```
 
 Required flags:
@@ -90,8 +108,8 @@ Required flags:
   it, the configure will try to fetch Vulkan-Headers, glslang, glm,
   ozz-animation, ImGui, etc., which have no business on a headless
   Linux dedicated server.
-- `STRATUMV_LINUX_MSQUIC_ROOT=/path/to/msquic` — the directory you
-  extracted in step 2. Must contain `include/msquic.h` and
+- `STRATUMV_LINUX_MSQUIC_ROOT=/path/to/msquic` — the root you
+  assembled in step 2. Must contain `include/msquic.h` and
   `bin/libmsquic.so` (or `lib/libmsquic.so`).
 
 Optional:
@@ -119,7 +137,7 @@ If you move `stratumv_server` to a system path (e.g.
 `/usr/local/bin`), you must either:
 
 - Rebuild with a matching `STRATUMV_LINUX_MSQUIC_ROOT`, OR
-- Set `LD_LIBRARY_PATH=/opt/msquic-2.5.6/bin` before invoking, OR
+- Set `LD_LIBRARY_PATH=/opt/msquic-2.5.8/bin` before invoking, OR
 - Copy `libmsquic.so*` into `/usr/local/lib` and run `sudo ldconfig`
 
 ## 5. Run the dedicated server
@@ -131,7 +149,7 @@ If you move `stratumv_server` to a system path (e.g.
 Expected startup log:
 
 ```
-[Server][info] StratumV dedicated server starting (StratumV 1.3.2, msquic 2.5.6, tick 30 Hz)
+[Server][info] StratumV dedicated server starting (StratumV 1.3.2, msquic 2.5.8, tick 30 Hz)
 [Server][info] Built schema handshake preamble (13 bytes, 1 types)
 [Server][info] Listening on 127.0.0.1:9101 (idle timeout 60000 ms)
 ```
