@@ -91,7 +91,10 @@ static constexpr uint32_t MAX_FRAMES = 2;
 struct FrameSync {
     VkCommandBuffer cmd            = VK_NULL_HANDLE;
     VkSemaphore     imageAvailable = VK_NULL_HANDLE;
-    VkSemaphore     renderFinished = VK_NULL_HANDLE;
+    // renderFinished lives per swapchain IMAGE (not per frame in
+    // flight) — see TestEngine::m_renderFinishedPerImage. A per-frame
+    // semaphore can be re-signaled while an earlier present still has
+    // it pending (VUID-vkQueueSubmit-pSignalSemaphores-00067).
     VkFence         inFlight       = VK_NULL_HANDLE;
 };
 
@@ -209,6 +212,7 @@ private:
 
     // Frame sync
     FrameSync m_frames[MAX_FRAMES];
+    std::vector<VkSemaphore> m_renderFinishedPerImage; // one per swapchain image
     uint32_t  m_currentFrame = 0;
     uint32_t  m_frameCount   = 0;
 
@@ -2246,9 +2250,16 @@ void TestEngine::initFrameSync()
     for (uint32_t i = 0; i < MAX_FRAMES; i++) {
         vkAllocateCommandBuffers(device, &cmdAI, &m_frames[i].cmd);
         vkCreateSemaphore(device, &semCI, nullptr, &m_frames[i].imageAvailable);
-        vkCreateSemaphore(device, &semCI, nullptr, &m_frames[i].renderFinished);
         vkCreateFence(device, &fenceCI, nullptr, &m_frames[i].inFlight);
     }
+
+    // One renderFinished semaphore per swapchain image: present
+    // consumes the semaphore keyed by imageIndex, so signaling must
+    // be keyed the same way or an in-flight signal can collide
+    // (VUID-vkQueueSubmit-pSignalSemaphores-00067).
+    m_renderFinishedPerImage.resize(m_swapchain.imageCount(), VK_NULL_HANDLE);
+    for (auto& sem : m_renderFinishedPerImage)
+        vkCreateSemaphore(device, &semCI, nullptr, &sem);
 }
 
 // ──────────────────────────────────────────────────────────────────
@@ -4632,13 +4643,13 @@ bool TestEngine::onFrame(float dt)
     submitInfo.commandBufferCount   = 1;
     submitInfo.pCommandBuffers      = &frame.cmd;
     submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores    = &frame.renderFinished;
+    submitInfo.pSignalSemaphores    = &m_renderFinishedPerImage[imageIndex];
     vkQueueSubmit(m_vkCtx.graphicsQueue(), 1, &submitInfo, frame.inFlight);
 
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores    = &frame.renderFinished;
+    presentInfo.pWaitSemaphores    = &m_renderFinishedPerImage[imageIndex];
     presentInfo.swapchainCount     = 1;
     VkSwapchainKHR sc = m_swapchain.swapchain();
     presentInfo.pSwapchains        = &sc;
@@ -4861,9 +4872,11 @@ void TestEngine::onShutdown()
     for (uint32_t i = 0; i < MAX_FRAMES; i++) {
         m_uboBuffers[i].destroy(alloc);
         vkDestroySemaphore(device, m_frames[i].imageAvailable, nullptr);
-        vkDestroySemaphore(device, m_frames[i].renderFinished, nullptr);
         vkDestroyFence(device, m_frames[i].inFlight, nullptr);
     }
+    for (auto sem : m_renderFinishedPerImage)
+        vkDestroySemaphore(device, sem, nullptr);
+    m_renderFinishedPerImage.clear();
 
     vkDestroyDescriptorPool(device, m_descPool, nullptr);
     vkDestroyDescriptorSetLayout(device, m_sceneDescLayout, nullptr);

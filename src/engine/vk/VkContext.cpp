@@ -299,6 +299,11 @@ bool VkCtx::createLogicalDevice()
     features13.pNext = &features12;
     features13.dynamicRendering = VK_TRUE;
     features13.synchronization2 = VK_TRUE;
+    // glslang 16 emits OpCapability DemoteToHelperInvocation for
+    // `discard` in Vulkan-targeted GLSL; the feature must be enabled
+    // (core in 1.3) or vkCreateShaderModule trips
+    // VUID-VkShaderModuleCreateInfo-pCode-08740.
+    features13.shaderDemoteToHelperInvocation = VK_TRUE;
 
     // Always request memory budget as optional
     m_optionalDeviceExtNames.push_back(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
