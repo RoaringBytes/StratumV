@@ -137,7 +137,7 @@ if(NOT STRATUMV_CORE_ONLY)
     set(SKIP_GLSLANG_INSTALL    ON  CACHE BOOL "" FORCE)
     FetchContent_Declare(glslang
         GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
-        GIT_TAG        15.1.0
+        GIT_TAG        16.3.0
         GIT_SHALLOW    TRUE
     )
 
