@@ -37,12 +37,18 @@ jobs:
         run: >
           cmake -B build
           -G "Visual Studio 17 2022" -A x64
+          -DSTRATUMV_BUILD_TESTS=ON
           -DSTRATUMV_ENABLE_DLSS=OFF
           -DSTRATUMV_ENABLE_SHARC=OFF
           -DSTRATUMV_ENABLE_NTC=OFF
 
       - name: Build
         run: cmake --build build --config Release --parallel
+
+      - name: Run tests
+        # CPU-side unit suite. Golden-image (GPU) tests stay opt-in via
+        # STRATUMV_GOLDEN_TESTS and never run on hosted runners.
+        run: ctest --test-dir build -C Release --output-on-failure
 
       - name: Verify library output
         shell: pwsh
@@ -83,11 +89,10 @@ jobs:
 
       - name: Download MsQuic 2.5.6 Linux OpenSSL3 prebuilt
         # The GitHub release artifact name has varied across MsQuic
-        # versions. For 2.5.6 we try the OpenSSL3 variant first; the
-        # CI job is allowed to fail if the asset is absent so the
-        # Windows build still stands alone until the Linux drop is
-        # available upstream.
-        continue-on-error: true
+        # versions. For 2.5.6 we try the OpenSSL3 variant first, then
+        # the openssl1 name. 2.5.6 is the last upstream release with
+        # Linux prebuilt assets (see issue #12) — if this ever 404s the
+        # job SHOULD go red so we notice, hence no continue-on-error.
         run: |
           set -euxo pipefail
           mkdir -p ${{ github.workspace }}/msquic
@@ -105,9 +110,6 @@ jobs:
           find ${{ github.workspace }}/msquic -name 'libmsquic.so*' -o -name 'msquic.h'
 
       - name: Configure CMake (STRATUMV_CORE_ONLY=ON)
-        # continue-on-error follows the download step so a temporary
-        # MsQuic artifact outage does not red-X the whole matrix.
-        continue-on-error: true
         run: >
           cmake -B build
           -G Ninja
@@ -117,11 +119,9 @@ jobs:
           -DSTRATUMV_LINUX_MSQUIC_ROOT=${{ github.workspace }}/msquic
 
       - name: Build stratumv_core + stratumv_server + sv_tests
-        continue-on-error: true
         run: cmake --build build --parallel
 
       - name: Verify stratumv_core.a and stratumv_server outputs
-        continue-on-error: true
         shell: bash
         run: |
           set -eu
@@ -136,7 +136,6 @@ jobs:
           ls -la build/libstratumv_core.a build/src/stratumv_server/stratumv_server
 
       - name: Run core ctest subset
-        continue-on-error: true
         working-directory: build
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/msquic/bin:${{ github.workspace }}/msquic/lib
