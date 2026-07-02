@@ -70,3 +70,9 @@ __pycache__/
 # Build output (core-only flavor) + scratch
 build-core/
 tmp/
+
+# Automated maintenance run artifacts
+.maintenance.lock
+_*.log
+capture.ppm
+pipeline_cache.bin
