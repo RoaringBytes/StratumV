@@ -520,6 +520,7 @@ if(NOT STRATUMV_CORE_ONLY)
         src/engine/ui/UiStyle.cpp
         src/engine/ui/ImGuiLayer.cpp
         src/engine/ui/AdminPanel.cpp
+        src/engine/ui/HelpOverlay.cpp
 
         # ── Plugin infrastructure + DevServer ──
         src/engine/DLLLoader.cpp
