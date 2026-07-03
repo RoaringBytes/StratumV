@@ -34,6 +34,7 @@
 #include <engine/passes/SkinnedMeshPass.h>
 #include <engine/MaterialPipeline.h>
 #include <engine/Types.h>
+#include <engine/ui/HelpOverlay.h>
 #include <engine/ui/ImGuiLayer.h>
 #include <engine/vk/PipelineCache.h> //
 //
@@ -104,7 +105,30 @@ class TestEngine : public sv::EngineBase {
 public:
     TestEngine() {
         setDevServerPort(0); // disable DevServer for test
+
+        // Harness-specific help topics, appended after the engine
+        // defaults (Getting started, Camera). See docs/UI_STYLE.md
+        // for the user-facing text rules.
+        m_helpOverlay.addTopic("Editing",
+            "Once connected with Editor permissions, the arrow keys "
+            "nudge your avatar in the horizontal plane, and the "
+            "buttons in the Network Demo panel do the same.\n\n"
+            "Ctrl+Z asks the server to undo the last edit and "
+            "Ctrl+Y to redo it.");
+        m_helpOverlay.addTopic("Panels",
+            "Asset Browser lists importable assets and bakes "
+            "thumbnails. Thumbnail Bake shows the bake queue. "
+            "Animation Debug exposes the skeleton and blend state. "
+            "Network Demo shows the connection, your identity and "
+            "the edit counters. Replicated Assets tracks files "
+            "received from the server.");
+        m_helpOverlay.addTopic("Quitting",
+            "Press Esc to close the viewer.");
     }
+
+    // Open the help overlay at startup (--show-help). Used by the
+    // visual verification rig and handy for first-time users.
+    void setShowHelp(bool v) { m_helpOverlay.setVisible(v); }
 
     // visual-checkpoint helpers — consumed by main.
     void setAutoBake(bool v) { m_autoBake = v; }
@@ -283,6 +307,10 @@ private:
 
     // ImGui
     sv::ImGuiLayer m_imguiLayer;
+
+    // Help overlay (F1). Drawn only in the interactive frame path so
+    // golden renders and headless runs never see it.
+    sv::HelpOverlay m_helpOverlay;
 
     float m_totalTime = 0.0f;
 
@@ -4622,6 +4650,11 @@ bool TestEngine::onFrame(float dt)
     drawReplicatedAssetsPanel();
     drawNetworkDemoPanel();
 
+    // Help overlay: F1 toggles it; --show-help opens it at startup.
+    if (ImGui::IsKeyPressed(ImGuiKey_F1, false))
+        m_helpOverlay.toggle();
+    m_helpOverlay.draw();
+
     // handle pending bake before recording the main frame.
     // bakeThumbnail() drains the queue itself, so it is safe to call
     // here — the main render below resubmits cleanly afterwards.
@@ -4996,6 +5029,7 @@ int main(int argc, char** argv)
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--auto-bake") == 0) engine.setAutoBake(true);
         if (strcmp(argv[i], "--auto-exit") == 0) engine.setAutoExit(true);
+        if (strcmp(argv[i], "--show-help") == 0) engine.setShowHelp(true);
         if (strcmp(argv[i], "--render-golden") == 0 && i + 1 < argc) {
             engine.setRenderGoldensMode(argv[++i]);
             wantGolden = true;
