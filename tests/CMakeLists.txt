@@ -133,6 +133,7 @@ if(NOT STRATUMV_CORE_ONLY)
         test_AssetWatcher.cpp         # recursive directory watch
         test_ThumbnailCache.cpp       # thumbnail cache + sibling files
         test_PerformanceContext.cpp   # PerformanceBudget + NetworkStats
+        test_SceneStateVersioning.cpp # migration chains + range clamping
         test_PipelineCacheIO.cpp      # VkPipelineCache header + file I/O
         test_NetworkContext.cpp       # NetworkContext sub-struct shape
                                       #   (pulls BaseSystemContext.h → volk/glm/ImGui)
