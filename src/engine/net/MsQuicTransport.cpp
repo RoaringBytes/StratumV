@@ -30,6 +30,7 @@
 //      which takes the same mutex and returns a copy.
 
 #include "MsQuicTransport.h"
+#include "../CrtCompat.h"
 
 #ifdef STRATUMV_MSQUIC_AVAILABLE
 
@@ -431,7 +432,7 @@ bool makeSelfSignedLoopbackCert(SelfSignedCert& out) {
     }
 
     // ── Step 3: Write PEM files under /tmp ─────────────────────────
-    FILE* certFp = std::fopen(paths.certPath.c_str(), "wb");
+    FILE* certFp = sv::FOpen(paths.certPath.c_str(), "wb");
     if (!certFp) {
         X509_free(cert);
         EVP_PKEY_free(pkey);
@@ -445,7 +446,7 @@ bool makeSelfSignedLoopbackCert(SelfSignedCert& out) {
     }
     std::fclose(certFp);
 
-    FILE* keyFp = std::fopen(paths.keyPath.c_str(), "wb");
+    FILE* keyFp = sv::FOpen(paths.keyPath.c_str(), "wb");
     if (!keyFp) {
         X509_free(cert);
         EVP_PKEY_free(pkey);

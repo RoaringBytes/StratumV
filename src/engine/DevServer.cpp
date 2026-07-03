@@ -8,6 +8,7 @@
 #include <ws2tcpip.h>
 
 #include "DevServer.h"
+#include "CrtCompat.h"
 #include "EngineLog.h"
 #include "SystemRegistry.h"
 #include "vk/VkContext.h"
@@ -60,8 +61,8 @@ bool DevServer::start(uint16_t port)
     }
 
     // Optional auth token for introspection endpoints
-    const char* envToken = std::getenv("STRATUMV_ADMIN_TOKEN");
-    if (envToken && envToken[0]) {
+    const std::string envToken = sv::GetEnv("STRATUMV_ADMIN_TOKEN");
+    if (!envToken.empty()) {
         m_authToken = envToken;
         printf("[DevServer] Admin token configured (%zu chars)\n", m_authToken.size());
     }

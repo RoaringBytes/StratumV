@@ -5,6 +5,8 @@
 #include <glm/glm.hpp>
 #include <cstring>
 
+#include "CrtCompat.h"
+
 namespace sv {
 
 // ── Time-of-Day Anchor ──────────────────────────────────────────
@@ -180,8 +182,7 @@ struct WeatherState {
     char            presetName[64] = {};
 
     void setName(const char* n) {
-        std::strncpy(presetName, n ? n : "", sizeof(presetName) - 1);
-        presetName[sizeof(presetName) - 1] = '\0';
+        StrCopy(presetName, n);
     }
 };
 
@@ -206,8 +207,7 @@ struct BiomeState {
     char          presetName[64] = {};
 
     void setName(const char* n) {
-        std::strncpy(presetName, n ? n : "", sizeof(presetName) - 1);
-        presetName[sizeof(presetName) - 1] = '\0';
+        StrCopy(presetName, n);
     }
 };
 

@@ -15,6 +15,7 @@
 
 #include "SceneUBO.h"
 
+#include <engine/CrtCompat.h>
 #include <engine/EngineBase.h>
 #include <engine/BaseSystemContext.h> // sv::PerformanceContext
 #include <engine/Window.h>
@@ -5033,7 +5034,7 @@ int main(int argc, char** argv)
     // rather than a spurious failure. See SKIP_RETURN_CODE in
     // tests/CMakeLists.txt.
     if (wantGolden) {
-        if (FILE* f = fopen(ASSET_PATH, "rb")) {
+        if (FILE* f = sv::FOpen(ASSET_PATH, "rb")) {
             fclose(f);
         } else {
             fprintf(stderr,

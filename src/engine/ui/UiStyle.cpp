@@ -5,6 +5,7 @@
 #endif
 #include "UiStyle.h"
 
+#include "../CrtCompat.h"
 #include <imgui.h>
 #include <nlohmann/json.hpp>
 #include <cstdio>
@@ -174,7 +175,7 @@ void applyDefaultStyle()
         };
 
         for (const char* path : fontPaths) {
-            FILE* f = fopen(path, "rb");
+            FILE* f = sv::FOpen(path, "rb");
             if (f) {
                 fclose(f);
                 s_defaultFont = io.Fonts->AddFontFromFileTTF(path, 15.0f);

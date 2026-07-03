@@ -233,7 +233,7 @@ SoundHandle Audio::postEventInternal(const char* eventName, const glm::vec3* pos
 
     // Cooldown check
     if (def.cooldownMs > 0) {
-        double now = ma_engine_get_time_in_milliseconds(m_engine);
+        double now = static_cast<double>(ma_engine_get_time_in_milliseconds(m_engine));
         if (now - def.lastPlayTime < (double)def.cooldownMs)
             return INVALID_SOUND;
         def.lastPlayTime = now;

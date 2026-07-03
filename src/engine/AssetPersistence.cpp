@@ -11,6 +11,7 @@
 
 #include "AssetPersistence.h"
 
+#include "CrtCompat.h"
 #include "EngineLog.h"
 #include "net/ReplicationProtocol.h"
 
@@ -100,12 +101,7 @@ bool writeMetaFile(const fs::path& path, const AssetRecord& rec) {
     fs::path temp = path;
     temp += ".tmp";
     {
-#if defined(_WIN32)
-        FILE* fp = nullptr;
-        fopen_s(&fp, temp.string().c_str(), "wb");
-#else
-        FILE* fp = std::fopen(temp.string().c_str(), "wb");
-#endif
+        FILE* fp = sv::FOpen(temp.string().c_str(), "wb");
         if (!fp) return false;
         const size_t n = std::fwrite(body.data(), 1, body.size(), fp);
         std::fclose(fp);
@@ -136,12 +132,7 @@ bool writeBinaryFile(const fs::path& path,
     fs::path temp = path;
     temp += ".tmp";
     {
-#if defined(_WIN32)
-        FILE* fp = nullptr;
-        fopen_s(&fp, temp.string().c_str(), "wb");
-#else
-        FILE* fp = std::fopen(temp.string().c_str(), "wb");
-#endif
+        FILE* fp = sv::FOpen(temp.string().c_str(), "wb");
         if (!fp) return false;
         size_t written = 0;
         if (size > 0) {
@@ -174,12 +165,7 @@ bool readBinaryFile(const fs::path&       path,
     std::error_code ec;
     const uintmax_t sz = fs::file_size(path, ec);
     if (ec) return false;
-#if defined(_WIN32)
-    FILE* fp = nullptr;
-    fopen_s(&fp, path.string().c_str(), "rb");
-#else
-    FILE* fp = std::fopen(path.string().c_str(), "rb");
-#endif
+    FILE* fp = sv::FOpen(path.string().c_str(), "rb");
     if (!fp) return false;
     out.resize(static_cast<size_t>(sz));
     const size_t n = (sz > 0) ? std::fread(out.data(), 1, out.size(), fp) : 0;
@@ -239,7 +225,7 @@ AssetPersistenceStatus AssetPersistence::setRootDir(const std::string& rootDir) 
         return AssetPersistenceStatus::Ok;
     }
     std::error_code ec;
-    fs::create_directories(fs::u8path(m_rootDir), ec);
+    fs::create_directories(sv::U8Path(m_rootDir), ec);
     if (ec) {
         SV_LOG_WARN("AssetPersistence",
             "create_directories('%s') failed: %s",
@@ -332,8 +318,8 @@ bool AssetPersistence::writeToDisk(const AssetRecord& rec) const {
     if (m_rootDir.empty()) return false;
     const std::string binPath  = assetFilePath(m_rootDir, rec.hash);
     const std::string metaPath = assetMetaPath(m_rootDir, rec.hash);
-    fs::path bp = fs::u8path(binPath);
-    fs::path mp = fs::u8path(metaPath);
+    fs::path bp = sv::U8Path(binPath);
+    fs::path mp = sv::U8Path(metaPath);
 
     // Make sure the 2-hex shard directory exists.
     std::error_code ec;
@@ -364,7 +350,7 @@ bool AssetPersistence::writeToDisk(const AssetRecord& rec) const {
 void AssetPersistence::scanRootDir() {
     if (m_rootDir.empty()) return;
     namespace fs = std::filesystem;
-    fs::path root = fs::u8path(m_rootDir);
+    fs::path root = sv::U8Path(m_rootDir);
     std::error_code ec;
     if (!fs::exists(root, ec) || !fs::is_directory(root, ec)) return;
 
