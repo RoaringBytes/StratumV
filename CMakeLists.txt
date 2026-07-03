@@ -181,14 +181,14 @@ endif()  # NOT STRATUMV_CORE_ONLY
 # same `msquic` IMPORTED SHARED library target so the rest of the
 # CMake tree is platform-agnostic below this block.
 #
-# Pinned to 2.5.8 (stable, 2026-05-08). When bumping: download the
+# Pinned to 2.5.9 (stable, 2026-07-02). When bumping: download the
 # matching tarball/nupkg and update the SHA256/paths below.
 if(STRATUMV_ENABLE_MSQUIC)
     if(WIN32)
         FetchContent_Declare(msquic
-            URL         https://www.nuget.org/api/v2/package/Microsoft.Native.Quic.MsQuic.Schannel/2.5.8
-            URL_HASH    SHA256=a3397bb1dd15130e258de989916cd78d70bfc9939907858ed4b5faf30af083b9
-            DOWNLOAD_NAME msquic-2.5.8.zip
+            URL         https://www.nuget.org/api/v2/package/Microsoft.Native.Quic.MsQuic.Schannel/2.5.9
+            URL_HASH    SHA256=9877a919e1aa73aa4800f1e8a06b6539021f376228910138eb04540cd956617b
+            DOWNLOAD_NAME msquic-2.5.9.zip
             DOWNLOAD_EXTRACT_TIMESTAMP TRUE
         )
         # The MsQuic NuGet zip has no CMakeLists.txt — MakeAvailable
@@ -230,20 +230,20 @@ if(STRATUMV_ENABLE_MSQUIC)
         message(STATUS "[StratumV] MsQuic enabled (${MSQUIC_DLL_PATH})")
 
     elseif(UNIX AND NOT APPLE)
-        # ── Linux: prebuilt MsQuic 2.5.8 (headers + libmsquic.so) ──
-        # The user must provision an MsQuic 2.5.8 root once (headers
+        # ── Linux: prebuilt MsQuic 2.5.9 (headers + libmsquic.so) ──
+        # The user must provision an MsQuic 2.5.9 root once (headers
         # from the pinned source tag, libmsquic.so from
         # packages.microsoft.com) and point CMake at it with
-        # -DSTRATUMV_LINUX_MSQUIC_ROOT=/opt/msquic-2.5.8. The expected
+        # -DSTRATUMV_LINUX_MSQUIC_ROOT=/opt/msquic-2.5.9. The expected
         # layout is:
         #   <root>/include/msquic.h
         #   <root>/include/msquic_posix.h
-        #   <root>/bin/libmsquic.so  (or libmsquic.so.2 / .2.5.8)
+        #   <root>/bin/libmsquic.so  (or libmsquic.so.2 / .2.5.9)
         #
         # Recipe in docs/LINUX_SERVER.md. We honour the pinned version
         # via a hard preflight check on msquic.h's #define.
         set(STRATUMV_LINUX_MSQUIC_ROOT "" CACHE PATH
-            "Path to a provisioned MsQuic 2.5.8 Linux root (must contain include/msquic.h and bin/libmsquic.so).")
+            "Path to a provisioned MsQuic 2.5.9 Linux root (must contain include/msquic.h and bin/libmsquic.so).")
         if(NOT STRATUMV_LINUX_MSQUIC_ROOT)
             message(FATAL_ERROR
                 "[StratumV] On Linux with STRATUMV_ENABLE_MSQUIC=ON you must "
@@ -264,7 +264,7 @@ if(STRATUMV_ENABLE_MSQUIC)
         # specific name first, fall back to the ones glibc's ld.so
         # resolves from /etc/ld.so.conf.d/*.
         find_library(MSQUIC_LIB_PATH
-            NAMES msquic libmsquic.so.2.5.8 libmsquic.so.2 libmsquic.so
+            NAMES msquic libmsquic.so.2.5.9 libmsquic.so.2 libmsquic.so
             PATHS "${STRATUMV_LINUX_MSQUIC_ROOT}/bin"
                   "${STRATUMV_LINUX_MSQUIC_ROOT}/lib"
             NO_DEFAULT_PATH
