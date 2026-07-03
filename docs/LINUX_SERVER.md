@@ -47,7 +47,7 @@ newer cmake from `apt.kitware.com` or use the snap.
 
 ## 2. Provision MsQuic (headers + prebuilt libmsquic.so)
 
-StratumV pins MsQuic 2.5.8. Upstream stopped attaching Linux prebuilt
+StratumV pins MsQuic 2.5.9. Upstream stopped attaching Linux prebuilt
 tarballs to GitHub releases (the old release-asset download 404s — see
 issue #12), so the recipe is now two-part: headers come from a sparse
 checkout of the pinned source tag, and the runtime `libmsquic.so`
@@ -55,7 +55,7 @@ comes from Microsoft's apt repo (`packages.microsoft.com`). This is
 the same provisioning CI uses.
 
 ```sh
-MSQUIC_TAG=v2.5.8   # keep in sync with the pin in CMakeLists.txt
+MSQUIC_TAG=v2.5.9   # keep in sync with the pin in CMakeLists.txt
 cd /tmp
 
 # Headers: sparse checkout of src/inc at the pinned tag
@@ -71,14 +71,14 @@ apt-get download libmsquic
 dpkg-deb -x libmsquic_*_amd64.deb pkg
 
 # Assemble the root layout CMake expects
-sudo mkdir -p /opt/msquic-2.5.8/include /opt/msquic-2.5.8/bin
-sudo cp msquic-src/src/inc/*.h /opt/msquic-2.5.8/include/
-sudo cp -a pkg/usr/lib/x86_64-linux-gnu/libmsquic.so* /opt/msquic-2.5.8/bin/ \
-    || sudo cp -a pkg/usr/lib/libmsquic.so* /opt/msquic-2.5.8/bin/
+sudo mkdir -p /opt/msquic-2.5.9/include /opt/msquic-2.5.9/bin
+sudo cp msquic-src/src/inc/*.h /opt/msquic-2.5.9/include/
+sudo cp -a pkg/usr/lib/x86_64-linux-gnu/libmsquic.so* /opt/msquic-2.5.9/bin/ \
+    || sudo cp -a pkg/usr/lib/libmsquic.so* /opt/msquic-2.5.9/bin/
 
-ls /opt/msquic-2.5.8
+ls /opt/msquic-2.5.9
 # expected layout:
-#   bin/libmsquic.so          (or .so.2 / .so.2.5.8)
+#   bin/libmsquic.so          (or .so.2 / .so.2.5.9)
 #   include/msquic.h
 #   include/msquic_posix.h
 ```
@@ -100,7 +100,7 @@ cmake -B build \
     -DCMAKE_BUILD_TYPE=Release \
     -DSTRATUMV_CORE_ONLY=ON \
     -DSTRATUMV_BUILD_TESTS=ON \
-    -DSTRATUMV_LINUX_MSQUIC_ROOT=/opt/msquic-2.5.8
+    -DSTRATUMV_LINUX_MSQUIC_ROOT=/opt/msquic-2.5.9
 ```
 
 Required flags:
@@ -137,7 +137,7 @@ If you move `stratumv_server` to a system path (e.g.
 `/usr/local/bin`), you must either:
 
 - Rebuild with a matching `STRATUMV_LINUX_MSQUIC_ROOT`, OR
-- Set `LD_LIBRARY_PATH=/opt/msquic-2.5.8/bin` before invoking, OR
+- Set `LD_LIBRARY_PATH=/opt/msquic-2.5.9/bin` before invoking, OR
 - Copy `libmsquic.so*` into `/usr/local/lib` and run `sudo ldconfig`
 
 ## 5. Run the dedicated server
@@ -149,7 +149,7 @@ If you move `stratumv_server` to a system path (e.g.
 Expected startup log:
 
 ```
-[Server][info] StratumV dedicated server starting (StratumV 1.3.2, msquic 2.5.8, tick 30 Hz)
+[Server][info] StratumV dedicated server starting (StratumV 1.3.2, msquic 2.5.9, tick 30 Hz)
 [Server][info] Built schema handshake preamble (13 bytes, 1 types)
 [Server][info] Listening on 127.0.0.1:9101 (idle timeout 60000 ms)
 ```
