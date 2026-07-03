@@ -12,6 +12,7 @@
 #include "NetTransform.h"
 #include "ReplicationRegistry.h"
 #include "WorldPersistence.h"
+#include "CrtCompat.h"
 
 #include <atomic>
 #include <chrono>
@@ -247,12 +248,7 @@ TEST_CASE("WorldPersistence: corrupt magic header is rejected",
     const std::string path = tmp.filePath("corrupt.svbin");
 
     // Write junk bytes with the right size but wrong magic.
-    FILE* fp = nullptr;
-#if defined(_WIN32)
-    fopen_s(&fp, path.c_str(), "wb");
-#else
-    fp = std::fopen(path.c_str(), "wb");
-#endif
+    FILE* fp = sv::FOpen(path.c_str(), "wb");
     REQUIRE(fp != nullptr);
     const uint8_t junk[sv::kWorldFileHeaderSize] = {'X','X','X','X','X','X','X','X'};
     std::fwrite(junk, 1, sizeof(junk), fp);
@@ -280,12 +276,7 @@ TEST_CASE("WorldPersistence: unsupported version is rejected",
     bytes[10] = 0x00;
     bytes[11] = 0x00;
 
-    FILE* fp = nullptr;
-#if defined(_WIN32)
-    fopen_s(&fp, path.c_str(), "wb");
-#else
-    fp = std::fopen(path.c_str(), "wb");
-#endif
+    FILE* fp = sv::FOpen(path.c_str(), "wb");
     REQUIRE(fp != nullptr);
     std::fwrite(bytes.data(), 1, bytes.size(), fp);
     std::fclose(fp);

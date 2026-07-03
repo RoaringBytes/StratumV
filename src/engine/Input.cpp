@@ -2,6 +2,7 @@
 // Copyright 2026 RoaringBytes
 #include "Input.h"
 #include "InputBindings.h"
+#include "CrtCompat.h"
 #include <imgui.h>
 #include <cstring>
 #include <cmath>
@@ -50,8 +51,7 @@ void Input::updateGamepad()
                     m_gamepad.jid = jid;
                     const char* n = glfwGetGamepadName(jid);
                     if (n) {
-                        strncpy(m_gamepad.name, n, sizeof(m_gamepad.name) - 1);
-                        m_gamepad.name[sizeof(m_gamepad.name) - 1] = '\0';
+                        sv::StrCopy(m_gamepad.name, n);
                     }
                     fprintf(stderr, "[Input] Gamepad connected: %s (jid=%d)\n", m_gamepad.name, jid);
                 }

@@ -5,6 +5,7 @@
 #endif
 
 #include "AnimationStateMachine.h"
+#include "CrtCompat.h"
 
 #include <cstdio>
 #include <cmath>
@@ -17,7 +18,7 @@ namespace sv {
 void AnimationStateMachine::addState(const char* name, const AnimationClip* clip,
                                      bool looping, float speed) {
     AnimState state{};
-    strncpy(state.name, name, kMaxTriggerNameLen - 1);
+    sv::StrCopy(state.name, name);
     state.clip  = clip;
     state.loop  = looping;
     state.speed = speed;
@@ -28,10 +29,10 @@ void AnimationStateMachine::addTransition(const char* from, const char* to,
                                           float crossfadeDuration, const char* trigger,
                                           TransitionMode mode) {
     AnimTransition t{};
-    strncpy(t.fromState, from, kMaxTriggerNameLen - 1);
-    strncpy(t.toState, to, kMaxTriggerNameLen - 1);
+    sv::StrCopy(t.fromState, from);
+    sv::StrCopy(t.toState, to);
     if (trigger && trigger[0] != '\0')
-        strncpy(t.trigger, trigger, kMaxTriggerNameLen - 1);
+        sv::StrCopy(t.trigger, trigger);
     t.crossfadeDuration = crossfadeDuration;
     t.mode = mode;
     m_transitions.push_back(t);
@@ -115,8 +116,7 @@ void AnimationStateMachine::setTrigger(const char* name) {
         return;
     }
 
-    strncpy(m_activeTriggers[m_activeTriggerCount], name, kMaxTriggerNameLen - 1);
-    m_activeTriggers[m_activeTriggerCount][kMaxTriggerNameLen - 1] = '\0';
+    sv::StrCopy(m_activeTriggers[m_activeTriggerCount], name);
     m_activeTriggerCount++;
 }
 
@@ -258,8 +258,7 @@ void AnimationStateMachine::removeTrigger(const char* name) {
 void AnimationStateMachine::beginTransition(int targetIdx, float duration) {
     if (targetIdx == m_currentStateIndex) return;
 
-    strncpy(m_prevStateName, m_states[m_currentStateIndex].name, kMaxTriggerNameLen - 1);
-    m_prevStateName[kMaxTriggerNameLen - 1] = '\0';
+    sv::StrCopy(m_prevStateName, m_states[m_currentStateIndex].name);
 
     m_targetStateIndex  = targetIdx;
     m_crossfadeElapsed  = 0.0f;

@@ -28,6 +28,7 @@
 // so a default build doesn't depend on the lab harness at all.
 
 #include "PngDiff.h"
+#include "CrtCompat.h"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -66,8 +67,8 @@ std::string goldenPath(const char* name)
 std::string capturePath(const char* name)
 {
     namespace fs = std::filesystem;
-    const char* env = std::getenv("SV_GOLDEN_CAPTURE_DIR");
-    if (env && env[0]) {
+    const std::string env = sv::GetEnv("SV_GOLDEN_CAPTURE_DIR");
+    if (!env.empty()) {
         return (fs::path(env) / name).generic_string();
     }
     // Fallback: captures landed next to goldens. This only happens

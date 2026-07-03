@@ -6,6 +6,7 @@
 // beyond the registry lookup during load. Lives in the core subset.
 
 #include "WorldPersistence.h"
+#include "CrtCompat.h"
 
 #include "EngineLog.h"
 #include "ReplicationRegistry.h"
@@ -260,7 +261,7 @@ WorldPersistenceStatus saveWorldToFile(const std::string&    filePath,
     // temp filename is still process-unique so accidental co-tenancy
     // doesn't clobber.
     namespace fs = std::filesystem;
-    fs::path target = fs::u8path(filePath);
+    fs::path target = sv::U8Path(filePath);
     fs::path dir    = target.parent_path();
     if (!dir.empty()) {
         std::error_code ec;
@@ -279,16 +280,11 @@ WorldPersistenceStatus saveWorldToFile(const std::string&    filePath,
             std::hash<std::string>{}(filePath))));
 
     {
-#if defined(_WIN32)
-        FILE* fp = nullptr;
-        fopen_s(&fp, temp.string().c_str(), "wb");
-#else
-        FILE* fp = std::fopen(temp.string().c_str(), "wb");
-#endif
+        FILE* fp = sv::FOpen(temp.string().c_str(), "wb");
         if (!fp) {
             SV_LOG_WARN("WorldPersistence",
                 "fopen('%s', wb) failed: %s",
-                temp.string().c_str(), std::strerror(errno));
+                temp.string().c_str(), sv::StrError(errno).c_str());
             return WorldPersistenceStatus::IoError;
         }
         const size_t written = std::fwrite(bytes.data(), 1, bytes.size(), fp);
@@ -335,7 +331,7 @@ WorldPersistenceStatus loadWorldFromFile(const std::string& filePath,
                                          PersistedWorld&    outWorld) {
     outWorld = PersistedWorld{};
     namespace fs = std::filesystem;
-    fs::path target = fs::u8path(filePath);
+    fs::path target = sv::U8Path(filePath);
 
     std::error_code ec;
     if (!fs::exists(target, ec)) {
@@ -350,16 +346,11 @@ WorldPersistenceStatus loadWorldFromFile(const std::string& filePath,
         return WorldPersistenceStatus::CorruptHeader;
     }
 
-#if defined(_WIN32)
-    FILE* fp = nullptr;
-    fopen_s(&fp, target.string().c_str(), "rb");
-#else
-    FILE* fp = std::fopen(target.string().c_str(), "rb");
-#endif
+    FILE* fp = sv::FOpen(target.string().c_str(), "rb");
     if (!fp) {
         SV_LOG_WARN("WorldPersistence",
             "fopen('%s', rb) failed: %s",
-            target.string().c_str(), std::strerror(errno));
+            target.string().c_str(), sv::StrError(errno).c_str());
         return WorldPersistenceStatus::IoError;
     }
 
